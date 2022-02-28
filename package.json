@@ -5,10 +5,10 @@
   "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node app.js"
+    "start": "node -r dotenv/config app.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Erick Umali",
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/lib-dynamodb": "^3.53.0",
@@ -16,5 +16,8 @@
     "cors": "^2.8.5",
     "express": "^4.17.3"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "dotenv": "^16.0.0"
+  }
 }
