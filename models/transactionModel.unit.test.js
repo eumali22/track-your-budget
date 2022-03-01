@@ -1,5 +1,6 @@
-import {buildSortKey} from "./transactionModel.js"
+import {buildSortKey, reduceIds} from "./transactionModel.js"
 
+/*
 test('fn buildSortKey: pass userId parameter only', () => {
     expect(buildSortKey("567")).toBe("user_567");
 });
@@ -25,3 +26,24 @@ test('fn buildSortKey: validate SK for get all transactions', () => {
     expect(buildSortKey(2, 1, false)).toBe("user_2#acct_1#trans_");
 });
 
+*/
+
+test('fn reduceIds: build key to query single transaction', () => {
+    let ids = {
+        "userId": "29554",
+        "budgetId": "4",
+        "accountId": "5",
+        "transactionId": "3081",
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_5#trans_3081");
+});
+
+test('fn reduceIds: build key to query all transactions', () => {
+    let ids = {
+        "userId": "29554",
+        "budgetId": "4",
+        "accountId": "15",
+        "transactionId": "",
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_15#trans_");
+});
