@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import { getTransactions } from './models/TransactionModel.js';
+import {router as transactionsRoute} from './routes/transactions.js';
 
 const app = express();
 
@@ -11,10 +11,10 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-app.get('/transactions', (req, res) => { // query all
-    getTransactions().then((data) => res.json(data.Items));
-});
+
+// Register routes
+app.use('/transactions', transactionsRoute);
 
 app.listen(process.env.PORT, () => {
-    console.log("listening on port %d", process.env.PORT)
+    console.log("listening on port %d", process.env.PORT);
 });
