@@ -5,12 +5,13 @@ import express from 'express';
 export const router = new express.Router();
 
 router.get('/:id?', async (req, res) => {
+    let transId = null;
     if (req.params.id) {
-        const data = await getTransactions(req.params.id);
-        return res.json(data.Items);
-    } else {
-        const data_1 = await getTransactions();
-        return res.json(data_1.Items);
+        transId = req.params.id;
+    } else if (req.query.id) {
+        transId = req.query.id;
     }
     
+    const data = await getTransactions(transId);
+    return res.json(data.Items);
 });

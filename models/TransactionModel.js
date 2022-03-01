@@ -24,12 +24,18 @@ export function buildSortKey(userId, acctId, transId) {
     return sk;
 }
 
+/**
+ * 
+ * @param {string} transId the transaction id
+ * @returns all transactions returned if transId is null or empty string. otherwise
+ * returns a single transaction item with the given transId.
+ */
 export const getTransactions = async (transId) => {
     const params = {
         TableName: "TrackYourBudget",
         ExpressionAttributeValues: {
             ":user": PFX_USER + USER_ID,
-            ":sort_key": buildSortKey(USER_ID, USER_ACCT, transId === undefined ? '' : transId),
+            ":sort_key": buildSortKey(USER_ID, USER_ACCT, transId),
         },
         ExpressionAttributeNames: {
             "#value": "value",
