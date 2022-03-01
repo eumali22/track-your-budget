@@ -1,7 +1,7 @@
 {
   "name": "track-your-budget",
   "jest": {
-    "verbose": false,
+    "verbose": true,
     "transform": {}
   },
   "version": "1.0.0",

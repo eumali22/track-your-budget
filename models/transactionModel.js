@@ -15,9 +15,11 @@ export function buildSortKey(userId, acctId, transId) {
     if (userId !== undefined) {
         sk = PFX_USER + userId;
         if (acctId !== undefined) {
-            sk += DELIM + PFX_ACCT + acctId;
+            sk += DELIM + PFX_ACCT
+                + (acctId === null || acctId === false ? '' : acctId);
             if (transId !== undefined) {
-                sk += DELIM + PFX_TRANS + transId;
+                sk += DELIM + PFX_TRANS
+                    + (transId === null || transId === false ? '' : transId);
             }
         }
     }

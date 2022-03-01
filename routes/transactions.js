@@ -12,6 +12,7 @@ router.get('/:id?', async (req, res) => {
         transId = req.query.id;
     }
     
+    console.log('transId value: ' + transId);
     const data = await getTransactions(transId);
     return res.json(data.Items);
 });

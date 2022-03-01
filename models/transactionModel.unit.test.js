@@ -14,9 +14,14 @@ test('fn buildSortKey: pass userId, acctId, transId parameters', () => {
 
 test('fn buildSortKey: validate SK for get all accounts', () => {
     expect(buildSortKey(12, '')).toBe("user_12#acct_");
+    expect(buildSortKey(2, null)).toBe("user_2#acct_");
+    expect(buildSortKey(2, false)).toBe("user_2#acct_");
 });
 
 test('fn buildSortKey: validate SK for get all transactions', () => {
     expect(buildSortKey(8, "2", '')).toBe("user_8#acct_2#trans_");
-    expect(buildSortKey('123', 50763, '')).toBe("user_123#acct_50763#trans_");
+    expect(buildSortKey('123', 2, '')).toBe("user_123#acct_2#trans_");
+    expect(buildSortKey('1', 2, null)).toBe("user_1#acct_2#trans_");
+    expect(buildSortKey(2, 1, false)).toBe("user_2#acct_1#trans_");
 });
+
