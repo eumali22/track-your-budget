@@ -1,15 +1,12 @@
 {
   "name": "track-your-budget",
-  "jest": {
-    "verbose": true,
-    "transform": {}
-  },
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js unit",
-    "start": "nodemon -r dotenv/config app.js"
+    "test": "jest",
+    "start": "nodemon -r dotenv/config app.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "Erick Umali",
@@ -22,8 +19,11 @@
   },
   "type": "module",
   "devDependencies": {
+    "@types/jest": "^27.4.1",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.0",
-    "jest": "^27.5.1"
+    "jest": "^27.5.1",
+    "ts-jest": "^27.1.3",
+    "typescript": "^4.6.2"
   }
 }

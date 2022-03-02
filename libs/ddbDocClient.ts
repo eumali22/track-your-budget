@@ -1,21 +1,25 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.ddbDocClient = void 0;
-const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
-const ddbClient_js_1 = require("./ddbClient.js");
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import {ddbClient} from "./ddbClient.js";
+
 const marshallOptions = {
     // Whether to automatically convert empty strings, blobs, and sets to `null`.
-    convertEmptyValues: false,
+    convertEmptyValues: false, // false, by default.
     // Whether to remove undefined values while marshalling.
-    removeUndefinedValues: false,
+    removeUndefinedValues: false, // false, by default.
     // Whether to convert typeof object to map attribute.
     convertClassInstanceToMap: false, // false, by default.
 };
+
 const unmarshallOptions = {
     // Whether to return numbers as a string instead of converting them to native JavaScript numbers.
     wrapNumbers: false, // false, by default.
 };
+
 const translateConfig = { marshallOptions, unmarshallOptions };
+
 // Create the DynamoDB Document client.
-const ddbDocClient = lib_dynamodb_1.DynamoDBDocumentClient.from(ddbClient_js_1.ddbClient, translateConfig);
-exports.ddbDocClient = ddbDocClient;
+const ddbDocClient = DynamoDBDocumentClient.from(ddbClient, translateConfig);
+
+export { ddbDocClient };
+
+
