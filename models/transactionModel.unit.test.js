@@ -1,34 +1,8 @@
-import {buildSortKey, reduceIds} from "./transactionModel.js"
+import {reduceIds} from "./transactionModel.js"
 
-/*
-test('fn buildSortKey: pass userId parameter only', () => {
-    expect(buildSortKey("567")).toBe("user_567");
-});
+/* fn reduceIds: normal usage */
 
-test('fn buildSortKey: pass userId and acctId parameters only', () => {
-    expect(buildSortKey("523", "51")).toBe("user_523#acct_51");
-});
-
-test('fn buildSortKey: pass userId, acctId, transId parameters', () => {
-    expect(buildSortKey(8, 1, 7)).toBe("user_8#acct_1#trans_7");
-});
-
-test('fn buildSortKey: validate SK for get all accounts', () => {
-    expect(buildSortKey(12, '')).toBe("user_12#acct_");
-    expect(buildSortKey(2, null)).toBe("user_2#acct_");
-    expect(buildSortKey(2, false)).toBe("user_2#acct_");
-});
-
-test('fn buildSortKey: validate SK for get all transactions', () => {
-    expect(buildSortKey(8, "2", '')).toBe("user_8#acct_2#trans_");
-    expect(buildSortKey('123', 2, '')).toBe("user_123#acct_2#trans_");
-    expect(buildSortKey('1', 2, null)).toBe("user_1#acct_2#trans_");
-    expect(buildSortKey(2, 1, false)).toBe("user_2#acct_1#trans_");
-});
-
-*/
-
-test('fn reduceIds: build key to query single transaction', () => {
+test('fn reduceIds: build SK for querying one user->budget->account->transaction', () => {
     let ids = {
         "userId": "29554",
         "budgetId": "4",
@@ -38,7 +12,7 @@ test('fn reduceIds: build key to query single transaction', () => {
     expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_5#trans_3081");
 });
 
-test('fn reduceIds: build key to query all transactions', () => {
+test('fn reduceIds: build SK for querying all user->budget->account->transactions', () => {
     let ids = {
         "userId": "29554",
         "budgetId": "4",
@@ -47,3 +21,91 @@ test('fn reduceIds: build key to query all transactions', () => {
     }
     expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_15#trans_");
 });
+
+test('fn reduceIds: build SK for querying one user->budget->account', () => {
+    let ids = {
+        "userId": "29554",
+        "budgetId": "4",
+        "accountId": "15",
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_15");
+});
+
+test('fn reduceIds: build SK for querying all user->budget->accounts', () => {
+    let ids = {
+        "userId": "29554",
+        "budgetId": "4",
+        "accountId": undefined,
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_");
+});
+
+test('fn reduceIds: build SK for querying one user->budget', () => {
+    let ids = {
+        "userId": "29554",
+        "budgetId": "78",
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_78");
+});
+
+test('fn reduceIds: build SK for querying all user->budgets', () => {
+    let ids = {
+        "userId": "29554",
+        "budgetId": "",
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_");
+});
+
+test('fn reduceIds: build SK for querying one user', () => {
+    let ids = {
+        "userId": "5484",
+    }
+    expect(reduceIds(ids)).toBe("user_5484");
+});
+
+test('fn reduceIds: build PK for querying all users', () => {
+    let ids = {
+        "userId": "",
+    }
+    expect(reduceIds(ids)).toBe("user_");
+});
+
+test('fn reduceIds: build PK for querying all user->budgets', () => {
+    let ids = {
+        "userId": 29554,
+        "budgetId": null,
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_");
+});
+
+test('fn reduceIds: build PK for querying all child items under one budget', () => {
+    let ids = {
+        "userId": 29554,
+        "budgetId": 1,
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_1");
+});
+
+/* other cases */
+
+test('fn reduceIds: passed ids as either strings or numbers should work', () => {
+    let ids = {
+        "userId": 29554,
+        "budgetId": 4,
+        "accountId": 5,
+        "transactionId": "3081",
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_5#trans_3081");
+});
+
+test('fn reduceIds: a null transaction id should return an SK for querying all ' +
+    'transactions', () => {
+    let ids = {
+        "userId": 29554,
+        "budgetId": 4,
+        "accountId": 5,
+        "transactionId": null,
+    }
+    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_5#trans_");
+});
+

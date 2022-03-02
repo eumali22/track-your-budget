@@ -1,13 +1,9 @@
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "../libs/ddbDocClient.js";
 
-const PFX_USER = "user_";
-const PFX_BUDGET = "budget_";
-const PFX_ACCT = "acct_";
-const PFX_TRANS = "trans_";
 const DELIM = "#";
 
-const ID_PREFIXES = {
+export const ID_PREFIXES = {
     "userId" : "user_",
     "budgetId" : "budget_",
     "accountId" : "acct_",
@@ -19,48 +15,58 @@ const USER_ID = "1";
 const BUDGET_ID = "1";
 const ACCT_ID = "1";
 
-export function buildSortKey(userId, budgetId, acctId, transId) {
-    let sk = "";
-    if (userId !== undefined) {
-        sk = PFX_USER + userId;
-        if (budgetId !== undefined) {
-            sk += DELIM + PFX_BUDGET
-                + (budgetId === null || budgetId === false ? '' : budgetId);
-            if (acctId !== undefined) {
-                sk += DELIM + PFX_ACCT
-                    + (acctId === null || acctId === false ? '' : acctId);
-                if (transId !== undefined) {
-                    sk += DELIM + PFX_TRANS
-                        + (transId === null || transId === false ? '' : transId);
-                }
-            }
-        }
-        
-    }
-
-    return sk;
-}
-
+/**
+ * Builds a key (partition or sort key) using the ids parameter.
+ * @param {Object} ids Object that holds the ids to query. Uses the same property names
+ * as ID_PREFIXES.
+ * @example
+ * const sortKey = reduceIds({
+ *     "userId": 29554,
+ *     "budgetId": 4,
+ *     "accountId": 5,
+ *     "transactionId": null,
+ * });
+ * @returns a string to be used as partition key or sort key.
+ */
 export function reduceIds(ids) {
     return Object.keys(ID_PREFIXES).reduce((prevVal, currVal) => {
+        // return empty string if current id not part of query object
+        if (!Object.keys(ids).includes(currVal)) {
+            return prevVal;
+        }
+
+        // return empty string if initial call. no delimiter needed
+        const d = (prevVal === '') ? '' : DELIM;
         const prefix = ID_PREFIXES[currVal];
-        const currId = (ids[currVal] === null || ids[currVal] === false) ? '' : ids[currVal];
-        return ((prevVal === 0) ? '' : prevVal + DELIM) + prefix + currId;
-    }, 0);
+        const currId = filterId(ids[currVal]);
+        return prevVal + d + prefix + currId;
+    }, '');
+}
+
+function filterId(id) {
+    return (['string', 'number'].includes(typeof id)) ? id : "";
 }
 
 /**
- * 
+ * Fetches transactions from the database.
  * @param {string} transId the transaction id
  * @returns all transactions returned if transId is null or empty string. otherwise
- * returns a single transaction item with the given transId.
+ * returns a single transaction item with transaction id = transId.
  */
 export const getTransactions = async (transId) => {
     let params = {
         TableName: "TrackYourBudget",
         ExpressionAttributeValues: {
-            ":pk": PFX_USER + USER_ID + DELIM + PFX_BUDGET + BUDGET_ID,
-            ":sk": buildSortKey(USER_ID, BUDGET_ID, ACCT_ID, transId),
+            ":pk": reduceIds({
+                "userId": USER_ID,
+                "budgetId": BUDGET_ID,
+            }),
+            ":sk": reduceIds({
+                "userId": USER_ID,
+                "budgetId": BUDGET_ID,
+                "accountId": ACCT_ID,
+                "transactionId": transId,
+            }),
         },
         ExpressionAttributeNames: {
             "#value": "value",
