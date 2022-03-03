@@ -1,7 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import {router as transactionsRoute} from './routes/transactions.js';
+import {router as transactionsRoute} from './routes/transactions';
+
 
 const app = express();
 

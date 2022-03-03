@@ -1,16 +1,16 @@
-import { QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { ddbDocClient } from "../libs/ddbDocClient.js";
+import { QueryCommand, QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { ddbDocClient } from "../libs/ddbDocClient";
 
 const DELIM = "#";
 
-type IdGroupParam = {
+export type IdGroupParam = {
     userId: string | number;
     budgetId?: string | number;
     accountId?: string | number;
     transactionId?: string | number;
 }
 
-type IdKey = keyof IdGroupParam;
+export type IdKey = keyof IdGroupParam;
 
 
 export const ID_PREFIXES: IdGroupParam = {
@@ -65,7 +65,7 @@ function filterId(id: any) {
  * @returns all transactions returned if transId is null or empty string. otherwise
  * returns a single transaction item with transaction id = transId.
  */
-export const getTransactions = async (transId: string) => {
+export const getTransactions = async (transId: any) => {
     let params = {
         TableName: "TrackYourBudget",
         ExpressionAttributeValues: {
@@ -88,13 +88,13 @@ export const getTransactions = async (transId: string) => {
     };
 
     try {
-        const data = await ddbDocClient.send(new QueryCommand(params));
-        // console.log("Success. Item details: ", data);
-        // console.log("Success. Item details: ", data.Items);
+        const data: QueryCommandOutput = await ddbDocClient.send(new QueryCommand(params));
+        console.log("Fetch success: " + data);
         return data;
     } catch (err) {
-        console.log("Error", err);
-        return ["Error with data fetching: " + err];
+        console.log("Error fetching: ", err);
+        let data = { Items: [{error: err}] };
+        return data;
     }
 };
 

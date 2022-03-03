@@ -1,8 +1,7 @@
-import { getTransactions } from '../models/transactionModel.js';
-import express from 'express';
+import { getTransactions } from '../models/transactionModel';
+import express, { Router } from 'express';
 
-// Define a new Router object
-export const router = new express.Router();
+export const router: Router = express.Router();
 
 router.get('/:id?', async (req, res) => {
     let transId = null;

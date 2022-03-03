@@ -1,4 +1,4 @@
-import {reduceIds} from "./transactionModel.js"
+import { reduceIds } from "../src/models/transactionModel"
 
 /* fn reduceIds: normal usage */
 
@@ -73,7 +73,7 @@ test('fn reduceIds: build PK for querying all users', () => {
 test('fn reduceIds: build PK for querying all user->budgets', () => {
     let ids = {
         "userId": 29554,
-        "budgetId": null,
+        "budgetId": "",
     }
     expect(reduceIds(ids)).toBe("user_29554#budget_");
 });
@@ -98,14 +98,4 @@ test('fn reduceIds: passed ids as either strings or numbers should work', () => 
     expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_5#trans_3081");
 });
 
-test('fn reduceIds: a null transaction id should return an SK for querying all ' +
-    'transactions', () => {
-    let ids = {
-        "userId": 29554,
-        "budgetId": 4,
-        "accountId": 5,
-        "transactionId": null,
-    }
-    expect(reduceIds(ids)).toBe("user_29554#budget_4#acct_5#trans_");
-});
 
