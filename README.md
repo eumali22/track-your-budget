@@ -1,5 +1,8 @@
-# track-your-budget
-API endpoint of TrackYourBudget using Node.js and DynamoDB. WIP
+# TrackYourBudget
+The API endpoint of TrackYourBudget.
+Project is still in the early stages of design and development.
 
-# tools
-TypeScript, ts-jest
+# Dev Tools Used
+-TypeScript
+-Jest
+-dotenv
