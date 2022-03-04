@@ -1,10 +1,11 @@
 import { QueryCommand, QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "../libs/ddbDocClient";
 import { constants } from "../libs/common"
+import type { IdsParam } from "../types";
 
-export type IdKey = keyof IdParameter;
+export type IdKey = keyof IdsParam;
 
-export const ID_PREFIXES: Readonly<IdParameter> = {
+export const ID_PREFIXES: Readonly<IdsParam> = {
     userId: "user_",
     budgetId: "budget_",
     accountId: "acct_",
@@ -28,7 +29,7 @@ const ACCT_ID = "1";
  * });
  * @returns a string to be used as partition key or sort key.
  */
-export function reduceIds(ids: IdParameter): string {
+export function reduceIds(ids: IdsParam): string {
     return Object.keys(ID_PREFIXES).reduce((prevVal, currVal) => {
         // return empty string if current id not part of query object
         if (!Object.keys(ids).includes(currVal)) {

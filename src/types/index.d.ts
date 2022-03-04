@@ -1,13 +1,23 @@
-declare type UserIdParameter = {
+import { XOR } from "ts-xor"
+
+declare type _RemoveNull<T> = {
+    [P in keyof T] : string | number;
+}
+
+declare type UserIdParam = {
     userId: string | number;
-};
-declare type BudgetIdParameter = {
+}
+
+declare type BudgetIdParam = UserIdParam & {
     budgetId: string | number | null;
-} & UserIdParameter;
-declare type AccountIdParameter = {
+}
+
+declare type AccountIdParam = _RemoveNull<BudgetIdParam> & {
     accountId: string | number | null;
-} & BudgetIdParameter;
-declare type TransactionIdParameter = {
+}
+
+declare type TransIdParam = _RemoveNull<AccountIdParam> & {
     transactionId: string | number | null;
-} & AccountIdParameter;
-declare type IdParameter = UserIdParameter | BudgetIdParameter | AccountIdParameter | TransactionIdParameter;
+}
+
+export declare type IdsParam = XOR<XOR<XOR<UserIdParam, BudgetIdParam>, AccountIdParam>, TransIdParam>;
