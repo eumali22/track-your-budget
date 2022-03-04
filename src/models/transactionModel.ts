@@ -1,19 +1,11 @@
 import { QueryCommand, QueryCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "../libs/ddbDocClient";
+import { constants } from "../libs/common"
+import type { IdsParam } from "../types";
 
-const DELIM = "#";
+export type IdKey = keyof IdsParam;
 
-export type IdGroupParam = {
-    userId: string | number;
-    budgetId?: string | number;
-    accountId?: string | number;
-    transactionId?: string | number;
-}
-
-export type IdKey = keyof IdGroupParam;
-
-
-export const ID_PREFIXES: IdGroupParam = {
+export const ID_PREFIXES: Readonly<IdsParam> = {
     userId: "user_",
     budgetId: "budget_",
     accountId: "acct_",
@@ -27,34 +19,37 @@ const ACCT_ID = "1";
 
 /**
  * Builds a key (partition or sort key) using the ids parameter.
- * @param {Object} ids Object that holds the ids to query. Uses the same property names
- * as ID_PREFIXES.
+ * @param {IdGroupParam} ids Object that holds the ids to query.
  * @example
  * const sortKey = reduceIds({
  *     "userId": 29554,
  *     "budgetId": 4,
  *     "accountId": 5,
- *     "transactionId": null,
+ *     "transactionId": "",
  * });
  * @returns a string to be used as partition key or sort key.
  */
-export function reduceIds(ids: IdGroupParam) {
+export function reduceIds(ids: IdsParam): string {
     return Object.keys(ID_PREFIXES).reduce((prevVal, currVal) => {
         // return empty string if current id not part of query object
         if (!Object.keys(ids).includes(currVal)) {
             return prevVal;
         }
-
-        // return empty string if initial call. no delimiter needed
-        const d = (prevVal === '') ? '' : DELIM;
+        const d = (prevVal === '') ? '' : constants.delimiter;
         const prefix = ID_PREFIXES[currVal as IdKey];
-        const currId = filterId(ids[currVal as keyof IdGroupParam]);
+        const currId = filterId(ids[currVal as IdKey]);
         return prevVal + d + prefix + currId;
     }, '');
 }
 
 
-function filterId(id: any) {
+export function filterId(id: string | number | any) {
+    if (typeof id === 'number' && isNaN(id)) {
+        return '';
+    }
+    if (typeof id === 'number' && !isFinite(id)) {
+        return '';
+    }
     return (['string', 'number'].includes(typeof id)) ? id : "";
 }
 
@@ -65,7 +60,7 @@ function filterId(id: any) {
  * @returns all transactions returned if transId is null or empty string. otherwise
  * returns a single transaction item with transaction id = transId.
  */
-export const getTransactions = async (transId: any) => {
+export const getTransactions = async (transId: string | null): Promise<QueryCommandOutput | string> => {
     let params = {
         TableName: "TrackYourBudget",
         ExpressionAttributeValues: {
@@ -92,9 +87,8 @@ export const getTransactions = async (transId: any) => {
         console.log("Fetch success: " + data);
         return data;
     } catch (err) {
-        console.log("Error fetching: ", err);
-        let data = { Items: [{error: err}] };
-        return data;
+        console.log("Error fetching: " + err);
+        return "Error fetching: " + err;
     }
 };
 
