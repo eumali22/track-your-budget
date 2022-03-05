@@ -1,9 +1,10 @@
 import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { ddbDocClient } from "../libs/ddbDocClient";
-import { constants } from "../libs/common"
-import { ParamGroupAll, AllIdKeys, XORParamGroups } from "../types/types";
+import { constants, createItem } from "../libs/common"
+import { AllIdKeys, AllParamGroup, BudgetParamGroup } from "../types/types";
+import { TransactAttrs, TransactParamGroup, XORParamGroups } from "../types/types";
 
-export const idPrefixes: Readonly<ParamGroupAll> = {
+export const idPrefixes: Readonly<AllParamGroup> = {
     userId: "user_",
     budgetId: "budget_",
     accountId: "acct_",
@@ -28,7 +29,7 @@ const ACCT_ID = "1";
  * @returns a string to be used as partition key or sort key.
  */
 export function reduceIds(ids: XORParamGroups): string {
-    if (typeof ids !== 'object') return "";
+    // if (typeof ids !== 'object') return "";
 
     return Object.keys(idPrefixes).reduce((prevVal, currVal) => {
         // return empty string if current id not part of query object
@@ -52,14 +53,6 @@ export function filterId(id: string | null | undefined) {
     return (['string', 'number'].includes(typeof id)) ? id : "";
 }
 
-function createPKParamGroup() {
-
-}
-
-function createSKParamGroup() {
-
-}
-
 /**
  * Fetches transactions from the database.
  * @param {string} transId the transaction id
@@ -67,19 +60,24 @@ function createSKParamGroup() {
  * returns a single transaction item with transaction id = transId.
  */
 export const getTransactions = async (transId: string | null) => {
+    const partitionKey = reduceIds({
+        "userId": USER_ID,
+        "budgetId": BUDGET_ID,
+    });
+
+    const sortKey = reduceIds({
+        "userId": USER_ID,
+        "budgetId": BUDGET_ID,
+        "accountId": ACCT_ID,
+        "transactionId": transId,
+    });
+    console.log("partitionKey: " + partitionKey);
+    console.log("sortKey: " + sortKey);
     let params = {
         TableName: "TrackYourBudget",
         ExpressionAttributeValues: {
-            ":pk": reduceIds({
-                "userId": USER_ID,
-                "budgetId": BUDGET_ID,
-            }),
-            ":sk": reduceIds({
-                "userId": USER_ID,
-                "budgetId": BUDGET_ID,
-                "accountId": ACCT_ID,
-                "transactionId": transId,
-            }),
+            ":pk": partitionKey,
+            ":sk": sortKey,
         },
         ExpressionAttributeNames: {
             "#value": "value",
@@ -90,8 +88,11 @@ export const getTransactions = async (transId: string | null) => {
 
     try {
         const data = await ddbDocClient.send(new QueryCommand(params));
-        console.log("Fetch success: " + data);
-        return data;
+        console.log("Fetch success.");
+        if (data.Count === 0) {
+            return "No results for transactionid=" + transId;
+        }
+        return data.Items;
     } catch (err) {
         console.log("Error fetching: " + err);
         return "Error fetching: " + err;
@@ -99,32 +100,43 @@ export const getTransactions = async (transId: string | null) => {
 };
 
 
-export const upsertTransaction = async (ids: any) => {
+/**
+ * Inserts or updates a transaction.
+ * @param pkIds 
+ * @param skIds 
+ * @param attrs 
+ * @returns an object or string wrapped in a promise
+ */
+export const putTransaction = async (pkIds: BudgetParamGroup,
+    skIds: TransactParamGroup, attrs: TransactAttrs) => {
+
+    const partitionKey = reduceIds({
+        userId: pkIds.userId,
+        budgetId: pkIds.budgetId
+    });
+    const sortKey = reduceIds({
+        userId: skIds.userId,
+        budgetId: skIds.budgetId
+    })
+
     let params = {
         TableName: "TrackYourBudget",
-        /*
-          Convert the key JavaScript object you are adding to the
-          required Amazon DynamoDB record. The format of values specifies
-          the datatype. The following list demonstrates different
-          datatype formatting requirements:
-          String: "String",
-          NumAttribute: 1,
-          BoolAttribute: true,
-          ListAttribute: [1, "two", false],
-          MapAttribute: { foo: "bar" },
-          NullAttribute: null
-           */
-        Item: {
-            primaryKey: reduceIds({
-                userId: ids.userId as string,
-                budgetId: ids.budgetId as string
-            }),
-            sortKey: '',
-            NEW_ATTRIBUTE_1: "NEW_ATTRIBUTE_1_VALUE", //For example 'Title': 'The Beginning'
-        },
+        // Item: createItem<types.TransactAttrs>(partitionKey, sortKey, {
+        //     is_start_bal: false,
+        //     is_outflow: true,
+        //     category: "cat_2",
+        //     trans_date: "string",
+        //     value: 100
+        // }),
+        Item: createItem<TransactAttrs>(partitionKey, sortKey, attrs),
     };
 
-    // try {
-    //     const data = await ddbDocClient.send(new PutCommand());
-    // }
+    try {
+        const data = await ddbDocClient.send(new PutCommand(params));
+        console.log("Success - item added or updated", data);
+        return data;
+    } catch (err) {
+        console.log("Error with put: " + err);
+        return "Error with put: " + err;
+    }
 }
