@@ -1,4 +1,4 @@
-import { add } from "../src/routes/addTest";
+import { add } from "../../src/routes/addTest";
 
 describe("test add function", () => {
     it("returns 22 for add(1, 21)", () => {
