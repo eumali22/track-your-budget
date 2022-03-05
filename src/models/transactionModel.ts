@@ -1,8 +1,7 @@
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { ddbDocClient } from "../libs/ddbDocClient";
+import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { constants, createItem } from "../libs/common"
-import { AllIdKeys, AllParamGroup, BudgetParamGroup } from "../types/types";
-import { TransactAttrs, TransactParamGroup, XORParamGroups } from "../types/types";
+import type { AllIdKeys, AllParamGroup, BudgetParamGroup } from "../types/types";
+import type { TransactAttrs, TransactParamGroup, XORParamGroups } from "../types/types";
 
 export const idPrefixes: Readonly<AllParamGroup> = {
     userId: "user_",
@@ -59,22 +58,19 @@ export function filterId(id: string | null | undefined) {
  * @returns all transactions returned if transId is null or empty string. otherwise
  * returns a single transaction item with transaction id = transId.
  */
-export const getTransactions = async (transId: string | null) => {
+export const getTransactions = async (db: DynamoDBDocumentClient, transId: string | null) => {
     const partitionKey = reduceIds({
-        "userId": USER_ID,
-        "budgetId": BUDGET_ID,
+        userId: USER_ID,
+        budgetId: BUDGET_ID,
     });
-
     const sortKey = reduceIds({
-        "userId": USER_ID,
-        "budgetId": BUDGET_ID,
-        "accountId": ACCT_ID,
-        "transactionId": transId,
+        userId: USER_ID,
+        budgetId: BUDGET_ID,
+        accountId: ACCT_ID,
+        transactionId: transId,
     });
-    console.log("partitionKey: " + partitionKey);
-    console.log("sortKey: " + sortKey);
     let params = {
-        TableName: "TrackYourBudget",
+        TableName: constants.tableName,
         ExpressionAttributeValues: {
             ":pk": partitionKey,
             ":sk": sortKey,
@@ -87,7 +83,7 @@ export const getTransactions = async (transId: string | null) => {
     };
 
     try {
-        const data = await ddbDocClient.send(new QueryCommand(params));
+        const data = await db.send(new QueryCommand(params));
         console.log("Fetch success.");
         if (data.Count === 0) {
             return "No results for transactionid=" + transId;
@@ -107,7 +103,7 @@ export const getTransactions = async (transId: string | null) => {
  * @param attrs 
  * @returns an object or string wrapped in a promise
  */
-export const putTransaction = async (pkIds: BudgetParamGroup,
+export const putTransaction = async (db: DynamoDBDocumentClient, pkIds: BudgetParamGroup,
     skIds: TransactParamGroup, attrs: TransactAttrs) => {
 
     const partitionKey = reduceIds({
@@ -120,23 +116,20 @@ export const putTransaction = async (pkIds: BudgetParamGroup,
     })
 
     let params = {
-        TableName: "TrackYourBudget",
-        // Item: createItem<types.TransactAttrs>(partitionKey, sortKey, {
-        //     is_start_bal: false,
-        //     is_outflow: true,
-        //     category: "cat_2",
-        //     trans_date: "string",
-        //     value: 100
-        // }),
+        TableName: constants.tableName,
         Item: createItem<TransactAttrs>(partitionKey, sortKey, attrs),
     };
 
     try {
-        const data = await ddbDocClient.send(new PutCommand(params));
+        const data = await db.send(new PutCommand(params));
         console.log("Success - item added or updated", data);
         return data;
     } catch (err) {
         console.log("Error with put: " + err);
         return "Error with put: " + err;
     }
+}
+
+export function helloDer (x: string): string {
+    return "hello " + x;
 }

@@ -1,7 +1,8 @@
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
-import {router as transactionsRoute} from './routes/transactions';
+import transactions from './routes/transactions';
+import { ddbDocClient as db } from './libs/ddbDocClient';
 
 const app = express();
 
@@ -12,9 +13,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
 // Register routes
-app.use('/transactions', transactionsRoute);
+app.use('/transactions', transactions(db));
 
-// IMPORTANT! route handlers are implemented based on this
 app.set('query parser', 'simple');
 
 app.listen(process.env.PORT, () => {

@@ -2,7 +2,8 @@
 import { TybItem } from "../types/types";
 
 export const constants = {
-    delimiter: "#"
+    delimiter: "#",
+    tableName: "TrackYourBudget",
 } as const;
 
 export function createItem<T>(pk: string, sk: string, attrs: T): TybItem {

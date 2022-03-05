@@ -116,9 +116,6 @@ describe("test reduceIds()", () => {
     });
 });
 
-
-
-
 /**
  * fn filterId()
  */
@@ -159,3 +156,8 @@ describe("test filterId()", () => {
     });
     
 });
+
+/**
+ * fn getTransactions()
+ */
+

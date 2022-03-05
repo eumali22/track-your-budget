@@ -27,7 +27,7 @@ export type BudgetAttrs = {
 }
 
 export type AccountAttrs = {
-    acount_name: string;
+    account_name: string;
 }
 
 export type TransactAttrs = {
