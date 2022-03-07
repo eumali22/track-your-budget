@@ -27,7 +27,7 @@ export type BudgetAttrs = {
 }
 
 export type AccountAttrs = {
-    acount_name: string;
+    account_name: string;
 }
 
 export type TransactAttrs = {
@@ -40,6 +40,6 @@ export type TransactAttrs = {
 }
 
 export interface TybItem extends Record<string, any> {
-    primaryKey: string;
-    sortKey: string;
+    PK: string;
+    SK: string;
 }
