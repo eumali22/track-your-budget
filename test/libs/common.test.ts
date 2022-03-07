@@ -1,4 +1,4 @@
-import { createItem, filterId, reduceIds } from "../../src/libs/common";
+import { createItem, filterId, reduceIds, createAttrs } from "../../src/libs/common";
 import { BudgetAttrs, AccountAttrs, TransactAttrs } from "../../src/types/types";
 
 
@@ -197,3 +197,56 @@ describe("test fn createItem()", () => {
     });
     
 });
+
+/**
+ * 
+ */
+describe("test fn createAttrs()", () => {
+    it("accepts body arg with extra properties passed", () => {
+        expect(createAttrs({
+            is_start_bal: true,
+            is_outflow: true,
+            category: "yeah",
+            trans_date: "112312312312",
+            memo: "whut",
+            value: 100,
+            extra: "hey",
+            properties: "yeah"
+        })).toMatchObject({
+            value: 100,
+            is_start_bal: true,
+            is_outflow: true,
+            category: "yeah",
+            trans_date: "112312312312",
+            memo: "whut"
+        });
+    });
+    it("accepts body arg without the optional attrs", () => {
+        expect(createAttrs({
+            is_start_bal: true,
+            trans_date: "43342",
+            is_outflow: true,
+            value: 1000,
+        })).toMatchObject({
+            value: 1000,
+            is_start_bal: true,
+            is_outflow: true,
+            trans_date: "43342",
+        });
+    });
+    it("throws error if there are missing required attrs", () => {
+        expect(() => createAttrs({
+            is_start_bal: true,
+            trans_date: "43342",
+            is_outflow: true,
+        })).toThrow(/Invalid body parameters/);
+    });
+    it("throws error if there are attrs with the wrong type", () => {
+        expect(() => createAttrs({
+            value: "1000",
+            is_start_bal: 12,
+            is_outflow: true,
+            trans_date: false,
+        })).toThrow(/Invalid body parameters/);
+    });
+})

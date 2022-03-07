@@ -1,7 +1,7 @@
 import { getTransactions, putTransaction } from '../models/transactionModel';
 import express from 'express';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { idPrefixes } from '../libs/common';
+import { idPrefixes, transactionAttrs } from '../libs/common';
 import { TransactParamGroup } from '../types/types';
 import short from 'short-uuid';
 
@@ -46,6 +46,10 @@ export default function (db: DynamoDBDocumentClient) {
                     return [key, getIdFromBody(key, req.body[key], true)];
                 }));
 
+            const attributes = {
+                is_start_bal: req.body.is_start_bal
+            };
+
             const data = await putTransaction(db, transactionParams as TransactParamGroup, {
                 is_start_bal: getAttrFromBody<boolean>("is_start_bal", req.body.is_start_bal, true), 
                 is_outflow: getAttrFromBody<boolean>("is_outflow", req.body.is_outflow, true), 
@@ -84,3 +88,5 @@ function getAttrFromBody<T>(attrName: string, attr: T, isRequired: boolean): T {
     }
     return attr;
 }
+
+

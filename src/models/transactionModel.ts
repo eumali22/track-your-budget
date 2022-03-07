@@ -44,6 +44,9 @@ export const getTransactions = async (db: DynamoDBDocumentClient, transInfo: Tra
 export const putTransaction = async (db: DynamoDBDocumentClient, transInfo: TransactParamGroup,
     attrs: TransactAttrs) => {
 
+    console.log(transInfo);
+    console.log(attrs);
+    
     const partitionKey = reduceIds({
         userId: transInfo.userId,
         budgetId: transInfo.budgetId,

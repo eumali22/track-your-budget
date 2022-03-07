@@ -1,5 +1,5 @@
 
-import { AllIdKeys, AllParamGroup, TybItem, XORParamGroups } from "../types/types";
+import { AllIdKeys, AllParamGroup, TransactAttrs, TybItem, XORParamGroups } from "../types/types";
 
 export const constants = {
     delimiter: "#",
@@ -12,6 +12,15 @@ export const idPrefixes: AllParamGroup = {
     accountId: "acct_",
     transactionId: "trans_",
 } as const;
+
+export const transactionAttrs = {
+    "is_start_bal": {type: "boolean", required: true}, 
+    "is_outflow": {type: "boolean", required: true},
+    "category": {type: "string", required: false},
+    "trans_date": {type: "string", required: true},
+    "memo": {type: "string", required: false},
+    "value": {type: "number", required: true}
+};
 
 
 /**
@@ -57,3 +66,23 @@ export function createItem<T>(pk: string, sk: string, attrs: T): TybItem {
     return item;
 }
 
+export function createAttrs(body: any): TransactAttrs {
+    const attrs = Object.fromEntries(Object.entries(transactionAttrs)
+        .map(([k, v]) => [k, body[k], v.type])
+        .filter(n => n[1] !== undefined && n[1] !== null)
+        .filter(n => typeof n[1] === n[2]));
+    
+    const requiredAttrs = Object.entries(transactionAttrs)
+        .filter(([k, v]) => v.required)
+        .map(([k, v]) => k);
+
+    const hasAllRequiredAttrs = requiredAttrs.reduce((pv, cv) => {
+        return pv && attrs.hasOwnProperty(cv);
+    }, true);
+
+    if (hasAllRequiredAttrs) {
+        return attrs;
+    } else {
+        throw "Invalid body parameters. Required attributes missing/wrong data types.";
+    }
+}
