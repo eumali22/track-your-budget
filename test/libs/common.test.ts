@@ -166,8 +166,8 @@ describe("test fn createItem()", () => {
         expect(createItem<BudgetAttrs>("afasf", "aaaa", {
             budget_name: "new Budget",
         })).toMatchObject({
-            primaryKey: "afasf",
-            sortKey: "aaaa",
+            PK: "afasf",
+            SK: "aaaa",
             budget_name: "new Budget",
         });
     });
@@ -175,8 +175,8 @@ describe("test fn createItem()", () => {
         expect(createItem<AccountAttrs>("afasf", "aaaa", {
             account_name: "new Acct",
         })).toMatchObject({
-            primaryKey: "afasf",
-            sortKey: "aaaa",
+            PK: "afasf",
+            SK: "aaaa",
             account_name: "new Acct",
         });
     });
@@ -187,8 +187,8 @@ describe("test fn createItem()", () => {
             trans_date: "111111111",
             value: 100,
         })).toMatchObject({
-            primaryKey: "123",
-            sortKey: "456",
+            PK: "123",
+            SK: "456",
             is_start_bal: true,
             is_outflow: true,
             trans_date: "111111111",

@@ -1,6 +1,6 @@
 import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { constants, createItem, reduceIds } from "../libs/common"
-import type { TransactAttrs, TransactParamGroup } from "../types/types";
+import type { AccountAttrs, AccountParamGroup, TransactAttrs, TransactParamGroup } from "../types/types";
 
 export const getTransactions = async (db: DynamoDBDocumentClient, transInfo: TransactParamGroup) => {
     const partitionKey = reduceIds({
@@ -23,7 +23,7 @@ export const getTransactions = async (db: DynamoDBDocumentClient, transInfo: Tra
 
     try {
         const data = await db.send(new QueryCommand(params));
-        console.log("Fetch success.");
+        console.log("Fetch success!");
         if (data.Count === 0) {
             return "No results for transactionid=" + transInfo.transactionId;
         }
@@ -34,7 +34,13 @@ export const getTransactions = async (db: DynamoDBDocumentClient, transInfo: Tra
     }
 };
 
-
+/**
+ * Inserts or updates a transaction
+ * @param db 
+ * @param transInfo
+ * @param attrs 
+ * @returns 
+ */
 export const putTransaction = async (db: DynamoDBDocumentClient, transInfo: TransactParamGroup,
     attrs: TransactAttrs) => {
 
@@ -51,7 +57,8 @@ export const putTransaction = async (db: DynamoDBDocumentClient, transInfo: Tran
     try {
         const data = await db.send(new PutCommand(params));
         console.log("Success - item added or updated", data);
-        return data;
+        console.log(`Transaction id: ${transInfo.transactionId}`);
+        return { transactionId: transInfo.transactionId };
     } catch (err) {
         console.log("Error with put: " + err);
         return "Error with put: " + err;

@@ -13,6 +13,7 @@ export const idPrefixes: AllParamGroup = {
     transactionId: "trans_",
 } as const;
 
+
 /**
  * Builds a key (partition or sort key) using the ids parameter.
  * @param {XORParamGroups} ids Object that holds the ids to query.
@@ -46,8 +47,8 @@ export function filterId(id: string | null | undefined) {
 
 export function createItem<T>(pk: string, sk: string, attrs: T): TybItem {
     let item: TybItem = {
-        primaryKey: pk,
-        sortKey: sk,
+        PK: pk,
+        SK: sk,
     };
     Object.keys(attrs).forEach((key) => {
         item[key] = attrs[key as keyof T];

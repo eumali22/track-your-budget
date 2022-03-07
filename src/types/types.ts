@@ -40,6 +40,6 @@ export type TransactAttrs = {
 }
 
 export interface TybItem extends Record<string, any> {
-    primaryKey: string;
-    sortKey: string;
+    PK: string;
+    SK: string;
 }
