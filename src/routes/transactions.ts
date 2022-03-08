@@ -1,7 +1,7 @@
 import { getTransactions, putTransaction } from '../models/transactionModel';
 import express from 'express';
 import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { idPrefixes, transactionAttrs } from '../libs/common';
+import { createAttrs, idPrefixes, transactionAttrs } from '../libs/common';
 import { TransactParamGroup } from '../types/types';
 import short from 'short-uuid';
 
@@ -12,7 +12,7 @@ const ACCT_ID = "1";
 
 export const router = express.Router();
 
-export default function (db: DynamoDBDocumentClient) {
+export default function () {
     router.get('/:id?', async (req, res) => {
         let transId = null;
         if (req.params.id) {
@@ -25,7 +25,7 @@ export default function (db: DynamoDBDocumentClient) {
             }
         }
 
-        const data = await getTransactions(db, {
+        const data = await getTransactions({
             userId: USER_ID,
             budgetId: BUDGET_ID,
             accountId: ACCT_ID,
@@ -46,18 +46,7 @@ export default function (db: DynamoDBDocumentClient) {
                     return [key, getIdFromBody(key, req.body[key], true)];
                 }));
 
-            const attributes = {
-                is_start_bal: req.body.is_start_bal
-            };
-
-            const data = await putTransaction(db, transactionParams as TransactParamGroup, {
-                is_start_bal: getAttrFromBody<boolean>("is_start_bal", req.body.is_start_bal, true), 
-                is_outflow: getAttrFromBody<boolean>("is_outflow", req.body.is_outflow, true), 
-                category: getAttrFromBody<string>("category", req.body.category, false),
-                trans_date: getAttrFromBody<string>("trans_date", req.body.trans_date, true),
-                memo: getAttrFromBody<string>("memo", req.body.memo, false),
-                value: getAttrFromBody<number>("value", req.body.value, true),
-            });
+            const data = await putTransaction(transactionParams as TransactParamGroup, createAttrs(req.body));
             res.status(200).json(data);
 
         } catch (err) {
@@ -80,13 +69,13 @@ function getIdFromBody(propName: string, prop: string, isRequired: boolean): str
     return prop;
 }
 
-function getAttrFromBody<T>(attrName: string, attr: T, isRequired: boolean): T {
-    if (attr === undefined || attr === null) {
-        if (isRequired) {
-            throw `No ${attrName} in request body!`;
-        }
-    }
-    return attr;
-}
+// function getAttrFromBody<T>(attrName: string, attr: T, isRequired: boolean): T {
+//     if (attr === undefined || attr === null) {
+//         if (isRequired) {
+//             throw `No ${attrName} in request body!`;
+//         }
+//     }
+//     return attr;
+// }
 
 

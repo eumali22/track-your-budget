@@ -2,10 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors, { CorsRequest } from 'cors';
 import transactions from './routes/transactions';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
 
-
-export default function createApp (db: DynamoDBDocumentClient): express.Express {
+export default function createApp (): express.Express {
     const app = express();
 
     app.use(cors());
@@ -15,10 +13,9 @@ export default function createApp (db: DynamoDBDocumentClient): express.Express 
     app.use(bodyParser.json());
 
     // Register routes
-    app.use('/transactions', transactions(db));
+    app.use('/transactions', transactions());
 
     app.set('query parser', 'simple');
 
     return app;
 }
-

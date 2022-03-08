@@ -249,4 +249,16 @@ describe("test fn createAttrs()", () => {
             trans_date: false,
         })).toThrow(/Invalid body parameters/);
     });
+    it("throws error if body param is non-object", () => {
+        expect(() => createAttrs(false)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(0)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs("")).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(true)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(100)).toThrow(/Body parameter is not an object/);
+    });
+    it("throws error if body param is undefined/null/etc", () => {
+        expect(() => createAttrs(null)).toThrow(/Body parameter is/);
+        expect(() => createAttrs(undefined)).toThrow(/Body parameter is/);
+        expect(() => createAttrs(NaN)).toThrow(/Body parameter is/);
+    });
 })

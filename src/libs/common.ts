@@ -20,7 +20,7 @@ export const transactionAttrs = {
     "trans_date": {type: "string", required: true},
     "memo": {type: "string", required: false},
     "value": {type: "number", required: true}
-};
+} as const;
 
 
 /**
@@ -67,6 +67,13 @@ export function createItem<T>(pk: string, sk: string, attrs: T): TybItem {
 }
 
 export function createAttrs(body: any): TransactAttrs {
+    if (typeof body !== 'object') {
+        throw "Body parameter is not an object.";
+    }
+    if (!body) {
+        throw "Body parameter is " + body;
+    }
+
     const attrs = Object.fromEntries(Object.entries(transactionAttrs)
         .map(([k, v]) => [k, body[k], v.type])
         .filter(n => n[1] !== undefined && n[1] !== null)
