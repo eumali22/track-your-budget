@@ -1,5 +1,8 @@
 
+import { PutCommand } from "@aws-sdk/lib-dynamodb";
+import { XOR } from "ts-xor";
 import { AllIdKeys, AllParamGroup, TransactAttrs, TybItem, XORParamGroups } from "../types/types";
+import { ddbDocClient as db } from "./ddbDocClient";
 
 export const constants = {
     delimiter: "#",
@@ -23,24 +26,16 @@ export const transactionAttrs = {
 } as const;
 
 
-/**
- * Builds a key (partition or sort key) using the ids parameter.
- * @param {XORParamGroups} ids Object that holds the ids to query.
- * @example
- * const sortKey = reduceIds({
- *     "userId": "29554",
- *     "budgetId": "4",
- *     "accountId": "5",
- *     "transactionId": "",
- * });
- * @returns a string to be used as partition key or sort key.
- */
-export function reduceIds(ids: XORParamGroups): string {
+export function reduceIds(ids: XORParamGroups, maxReduction?: number): string {
     // if (typeof ids !== 'object') return "";
 
-    return Object.keys(idPrefixes).reduce((prevVal, currVal) => {
-        // return empty string if current id not part of query object
+    return Object.keys(idPrefixes).reduce((prevVal, currVal, index) => {
+        // return prevVal if current id not part of query object
+        // return preVal if maxReduction reached
         if (!Object.keys(ids).includes(currVal)) {
+            return prevVal;
+        }
+        if (maxReduction && index >= maxReduction) {
             return prevVal;
         }
         const d = (prevVal === '') ? '' : constants.delimiter;
@@ -91,5 +86,34 @@ export function createAttrs(body: any): TransactAttrs {
         return attrs;
     } else {
         throw "Invalid body parameters. Required attributes missing/wrong data types.";
+    }
+}
+
+export const generatePk = (info: XORParamGroups, idKey: AllIdKeys): string => {
+    if (['userId', 'budgetId'].includes(idKey)) { 
+        // if there is a passed id, ignore/remove it
+        if (info[idKey] !== null && info[idKey] !== "") {
+            return reduceIds(info, 2).slice(0, info[idKey]!.length * -1);
+        }  
+    }
+    return reduceIds(info, 2);
+}
+
+export const putItem = async <T extends XORParamGroups, U>(info: T, attrs: U): Promise<string | {id: string}> => {
+
+    const partitionKey = reduceIds(info);
+    const sortKey = reduceIds(info);
+    const params = {
+        TableName: constants.tableName,
+        Item: createItem<U>(partitionKey, sortKey, attrs),
+    };
+
+    try {
+        const data = await db.send(new PutCommand(params));
+        console.log("Success - item added or updated", data);
+        return { id: "" }; // TO DO fix
+    } catch (err) {
+        console.log("Error with put: " + err);
+        return "Error with put: " + err;
     }
 }

@@ -1,9 +1,9 @@
-import { createItem, filterId, reduceIds, createAttrs } from "../../src/libs/common";
-import { BudgetAttrs, AccountAttrs, TransactAttrs } from "../../src/types/types";
+import { createItem, filterId, reduceIds, createAttrs, generatePk } from "../../src/libs/common";
+import { BudgetAttrs, AccountAttrs, TransactAttrs, UserParamGroup, BudgetParamGroup, AccountParamGroup } from "../../src/types/types";
 
 
 /**
- * fn reduceIds()
+ * fn reduceIds() TO DO text maxReduction
  */
 describe("test reduceIds()", () => {
     it('builds SK for querying one user->budget->account->transaction', () => {
@@ -262,3 +262,68 @@ describe("test fn createAttrs()", () => {
         expect(() => createAttrs(NaN)).toThrow(/Body parameter is/);
     });
 })
+
+/**
+ * 
+ */
+describe("test fn generatePk()", () => {
+    it("returns valid pk for user and budget params", () => {
+        const pk1 = generatePk({
+            userId: "123"
+        }, "userId");
+        expect(pk1).toBe("user_");
+
+        const pk2 = generatePk({
+            userId: "123",
+            budgetId: "safjas-asd"
+        }, "budgetId");
+        expect(pk2).toBe("user_123#budget_");
+
+        const pk3 = generatePk({
+            userId: null
+        }, "userId");
+        expect(pk3).toBe("user_");
+
+        const pk4 = generatePk({
+            userId: "123a",
+            budgetId: ""
+        }, "budgetId");
+        expect(pk4).toBe("user_123a#budget_");
+
+        const pk5 = generatePk({
+            userId: "    "
+        }, "userId");
+        expect(pk5).toBe("user_");
+
+        // const pk4 = generatePk<BudgetParamGroup, "budgetId">({
+        //     userId: "123a",
+        //     budgetId: ""
+        // }, "budgetId");
+        // expect(pk4).toBe("user_123a#budget_");
+    });
+    it("returns valid pk for account and transaction params", () => {
+        const pk1 = generatePk({
+            userId: "a63234",
+            budgetId: "9095",
+            accountId: null
+        }, "accountId");
+        expect(pk1).toBe("user_a63234#budget_9095");
+
+        // const pk2 = generatePk<BudgetParamGroup, "budgetId">({
+        //     userId: "123",
+        //     budgetId: "safjas-asd"
+        // }, "budgetId");
+        // expect(pk2).toBe("user_123#budget_");
+
+        // const pk3 = generatePk<UserParamGroup, "userId">({
+        //     userId: null
+        // }, "userId");
+        // expect(pk3).toBe("user_");
+
+        // const pk4 = generatePk<BudgetParamGroup, "budgetId">({
+        //     userId: "123a",
+        //     budgetId: ""
+        // }, "budgetId");
+        // expect(pk4).toBe("user_123a#budget_");
+    });
+});

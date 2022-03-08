@@ -35,18 +35,9 @@ export const getTransactions = async (transInfo: TransactParamGroup) => {
     }
 };
 
-/**
- * Inserts or updates a transaction
- * @param db 
- * @param transInfo
- * @param attrs 
- * @returns 
- */
+
 export const putTransaction = async (transInfo: TransactParamGroup,
     attrs: TransactAttrs) => {
-
-    console.log(transInfo);
-    console.log(attrs);
     
     const partitionKey = reduceIds({
         userId: transInfo.userId,

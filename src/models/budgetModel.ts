@@ -1,7 +1,7 @@
-import { DynamoDBDocumentClient, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { constants, reduceIds } from "../libs/common";
-import { BudgetParamGroup } from "../types/types";
-import { ddbDocClient as db} from "../libs/ddbDocClient";
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { constants, createItem, reduceIds } from "../libs/common";
+import { BudgetAttrs, BudgetParamGroup } from "../types/types";
+import { ddbDocClient as db } from "../libs/ddbDocClient";
 
 export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
     const partitionKey = reduceIds({
@@ -33,5 +33,30 @@ export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
     } catch (err) {
         console.log("Error fetching: " + err);
         return "Error fetching: " + err;
+    }
+}
+
+
+export const putBudget = async (budgetInfo: BudgetParamGroup,
+    attrs: BudgetAttrs) => {
+
+    const partitionKey = reduceIds({
+        userId: budgetInfo.userId,
+        budgetId: "",
+    });
+    const sortKey = reduceIds(budgetInfo);
+    const params = {
+        TableName: constants.tableName,
+        Item: createItem<BudgetAttrs>(partitionKey, sortKey, attrs),
+    };
+
+    try {
+        const data = await db.send(new PutCommand(params));
+        console.log("Success - item added or updated", data);
+        console.log(`Budget id: ${budgetInfo.budgetId}`);
+        return { budgetId: budgetInfo.budgetId };
+    } catch (err) {
+        console.log("Error with put: " + err);
+        return "Error with put: " + err;
     }
 }
