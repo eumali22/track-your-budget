@@ -15,10 +15,10 @@ module.exports = {
     '^.+\\.(ts|tsx)$': 'ts-jest'
   },
   testMatch: [
-    '**/*.test.ts'
+    '**/*.db.test.ts'
   ],
-  // testPathIgnorePatterns: [
-  //   'models'
-  // ],
+  testPathIgnorePatterns: [
+    'libs', 'routes'
+  ],
   testEnvironment: 'node'
 };
