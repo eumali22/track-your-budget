@@ -1,9 +1,10 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors, { CorsRequest } from 'cors';
+import cors from 'cors';
 import transactions from './routes/transactions';
+import budgets from './routes/budgets';
 
-export default function createApp (): express.Express {
+export default function (): express.Express {
     const app = express();
 
     app.use(cors());
@@ -14,6 +15,7 @@ export default function createApp (): express.Express {
 
     // Register routes
     app.use('/transactions', transactions());
+    app.use('/budgets', budgets());
 
     app.set('query parser', 'simple');
 

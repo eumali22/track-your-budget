@@ -1,9 +1,9 @@
 import { getTransactions, putTransaction } from '../models/transactionModel';
 import express from 'express';
-import { DynamoDBDocumentClient } from '@aws-sdk/lib-dynamodb';
-import { createAttrs, idPrefixes, transactionAttrs } from '../libs/common';
+import { createAttrs, transactionAttrs } from '../models/common';
 import { TransactParamGroup } from '../types/types';
 import short from 'short-uuid';
+import { constants } from '../libs/common';
 
 // TO DO hardcoded for now
 const USER_ID = "1";
@@ -42,11 +42,11 @@ export default function () {
     router.post('/', async (req, res) => {
         try {
             const transactionParams = Object.fromEntries(
-                Object.entries(idPrefixes).map(([key, val]) => {
+                Object.entries(constants.transactionIdKeys).map(([key, val]) => {
                     return [key, getIdFromBody(key, req.body[key], true)];
                 }));
 
-            const data = await putTransaction(transactionParams as TransactParamGroup, createAttrs(req.body));
+            const data = await putTransaction(transactionParams as TransactParamGroup, createAttrs(req.body, transactionAttrs));
             res.status(200).json(data);
 
         } catch (err) {
