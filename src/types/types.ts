@@ -43,3 +43,31 @@ export interface TybItem extends Record<string, any> {
     PK: string;
     SK: string;
 }
+
+export class IdGroup {
+    readonly type: AllIdKeys;
+    readonly idParams: XORParamGroups;
+
+    constructor(t: AllIdKeys, idParams: XORParamGroups) {
+        this.type = t;
+        this.idParams = idParams;
+        if (!this.validate()) {
+            throw "invalid parameters"
+        }
+    }
+
+    private validate() {
+        switch (this.type) {
+            case "userId":
+                return !(this.idParams.hasOwnProperty("budgetId") ||
+                    this.idParams.hasOwnProperty("accountId") ||
+                    this.idParams.hasOwnProperty("transactionId"));
+            case "budgetId": 
+                return !(this.idParams.hasOwnProperty("accountId") ||
+                    this.idParams.hasOwnProperty("transactionId"));
+            case "accountId":
+                return !(this.idParams.hasOwnProperty("transactionId"));
+        }
+        return true;
+    }
+}

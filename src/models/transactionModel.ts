@@ -1,7 +1,8 @@
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { constants, createItem, reduceIds } from "../libs/common"
+import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { createItem, reduceIds } from "./common"
 import type { TransactAttrs, TransactParamGroup } from "../types/types";
 import { ddbDocClient as database} from "../libs/ddbDocClient";
+import { constants } from "../libs/common";
 
 export const getTransactions = async (transInfo: TransactParamGroup) => {
     const partitionKey = reduceIds({

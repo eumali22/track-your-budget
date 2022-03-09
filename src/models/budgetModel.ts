@@ -1,7 +1,8 @@
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { constants, createItem, reduceIds } from "../libs/common";
-import { BudgetAttrs, BudgetParamGroup } from "../types/types";
+import { QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { reduceIds, putItem, createAttrs, budgetAttrs } from "./common";
+import { BudgetAttrs, BudgetParamGroup, IdGroup } from "../types/types";
 import { ddbDocClient as db } from "../libs/ddbDocClient";
+import { constants } from "../libs/common";
 
 export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
     const partitionKey = reduceIds({
@@ -37,26 +38,31 @@ export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
 }
 
 
-export const putBudget = async (budgetInfo: BudgetParamGroup,
-    attrs: BudgetAttrs) => {
+// export const putBudget = async (budgetInfo: BudgetParamGroup,
+//     attrs: BudgetAttrs) => {
 
-    const partitionKey = reduceIds({
-        userId: budgetInfo.userId,
-        budgetId: "",
-    });
-    const sortKey = reduceIds(budgetInfo);
-    const params = {
-        TableName: constants.tableName,
-        Item: createItem<BudgetAttrs>(partitionKey, sortKey, attrs),
-    };
+//     const partitionKey = reduceIds({
+//         userId: budgetInfo.userId,
+//         budgetId: "",
+//     });
+//     const sortKey = reduceIds(budgetInfo);
+//     const params = {
+//         TableName: constants.tableName,
+//         Item: createItem<BudgetAttrs>(partitionKey, sortKey, attrs),
+//     };
 
-    try {
-        const data = await db.send(new PutCommand(params));
-        console.log("Success - item added or updated", data);
-        console.log(`Budget id: ${budgetInfo.budgetId}`);
-        return { budgetId: budgetInfo.budgetId };
-    } catch (err) {
-        console.log("Error with put: " + err);
-        return "Error with put: " + err;
-    }
+//     try {
+//         const data = await db.send(new PutCommand(params));
+//         console.log("Success - item added or updated", data);
+//         console.log(`Budget id: ${budgetInfo.budgetId}`);
+//         return { budgetId: budgetInfo.budgetId };
+//     } catch (err) {
+//         console.log("Error with put: " + err);
+//         return "Error with put: " + err;
+//     }
+// }
+
+export const putBudget = async (budget: BudgetParamGroup, body: any) => {
+    const attrs: BudgetAttrs = createAttrs(body, budgetAttrs);
+    return putItem<BudgetAttrs>(new IdGroup("budgetId", budget), attrs);
 }

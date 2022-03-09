@@ -1,5 +1,5 @@
 import { getBudgets } from "../../src/models/budgetModel";
-import { DynamoDBDocumentClient, QueryCommand, QueryCommandInput, ServiceInputTypes } from "@aws-sdk/lib-dynamodb";
+import { DynamoDBDocumentClient, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
 
 /**
  * fn getBudgets()

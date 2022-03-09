@@ -1,5 +1,5 @@
-import { createItem, filterId, reduceIds, createAttrs, generatePk } from "../../src/libs/common";
-import { BudgetAttrs, AccountAttrs, TransactAttrs, UserParamGroup, BudgetParamGroup, AccountParamGroup } from "../../src/types/types";
+import { createItem, filterId, reduceIds, createAttrs, generatePk, generateSk } from "../../src/models/common";
+import { BudgetAttrs, AccountAttrs, TransactAttrs, IdGroup } from "../../src/types/types";
 
 
 /**
@@ -268,62 +268,94 @@ describe("test fn createAttrs()", () => {
  */
 describe("test fn generatePk()", () => {
     it("returns valid pk for user and budget params", () => {
-        const pk1 = generatePk({
+        expect(generatePk(new IdGroup("userId", {
             userId: "123"
-        }, "userId");
-        expect(pk1).toBe("user_");
+        }))).toBe("user_");
 
-        const pk2 = generatePk({
+        expect(generatePk(new IdGroup("userId", {
+            userId: null
+        }))).toBe("user_");
+
+        expect(generatePk(new IdGroup("userId", {
+            userId: "     "
+        }))).toBe("user_");
+
+        expect(generatePk(new IdGroup("budgetId", {
             userId: "123",
             budgetId: "safjas-asd"
-        }, "budgetId");
-        expect(pk2).toBe("user_123#budget_");
+        }))).toBe("user_123#budget_");
 
-        const pk3 = generatePk({
-            userId: null
-        }, "userId");
-        expect(pk3).toBe("user_");
-
-        const pk4 = generatePk({
+        expect(generatePk(new IdGroup("budgetId", {
             userId: "123a",
             budgetId: ""
-        }, "budgetId");
-        expect(pk4).toBe("user_123a#budget_");
+        }))).toBe("user_123a#budget_");
 
-        const pk5 = generatePk({
-            userId: "    "
-        }, "userId");
-        expect(pk5).toBe("user_");
-
-        // const pk4 = generatePk<BudgetParamGroup, "budgetId">({
-        //     userId: "123a",
-        //     budgetId: ""
-        // }, "budgetId");
-        // expect(pk4).toBe("user_123a#budget_");
+        expect(generatePk(new IdGroup("budgetId", {
+            userId: "123a",
+            budgetId: "   "
+        }))).toBe("user_123a#budget_");
     });
     it("returns valid pk for account and transaction params", () => {
-        const pk1 = generatePk({
+        expect(generatePk(new IdGroup("accountId", {
             userId: "a63234",
             budgetId: "9095",
             accountId: null
-        }, "accountId");
-        expect(pk1).toBe("user_a63234#budget_9095");
+        }))).toBe("user_a63234#budget_9095");
 
-        // const pk2 = generatePk<BudgetParamGroup, "budgetId">({
-        //     userId: "123",
-        //     budgetId: "safjas-asd"
-        // }, "budgetId");
-        // expect(pk2).toBe("user_123#budget_");
+        expect(generatePk(new IdGroup("accountId", {
+            userId: "123",
+            budgetId: "safjas-asd",
+            accountId: "hello"
+        }))).toBe("user_123#budget_safjas-asd");
 
-        // const pk3 = generatePk<UserParamGroup, "userId">({
-        //     userId: null
-        // }, "userId");
-        // expect(pk3).toBe("user_");
+        expect(generatePk(new IdGroup("transactionId", {
+            userId: "1",
+            budgetId: "89",
+            accountId: "293",
+            transactionId: ""
+        }))).toBe("user_1#budget_89");
 
-        // const pk4 = generatePk<BudgetParamGroup, "budgetId">({
-        //     userId: "123a",
-        //     budgetId: ""
-        // }, "budgetId");
-        // expect(pk4).toBe("user_123a#budget_");
+        expect(generatePk(new IdGroup("transactionId", {
+            userId: "1",
+            budgetId: "89",
+            accountId: "293",
+            transactionId: "1231"
+        }))).toBe("user_1#budget_89");
     });
 });
+
+/**
+ * 
+ */
+describe("test fn generateSk()", () => {
+    it("returns valid sk for user param", () => {
+        expect(generateSk(new IdGroup("userId", {
+            userId: "123"
+        }))).toBe("user_123");
+    });
+    it("throws error if userId is null/empty string", () => {
+        expect(() => {
+            generateSk(new IdGroup("userId", {
+                userId: "",
+            }));
+        }).toThrow(/userId not specified/);
+
+        expect(() => {
+            generateSk(new IdGroup("userId", {
+                userId: "    ",
+            }));
+        }).toThrow(/userId not specified/);
+
+        expect(() => {
+            generateSk(new IdGroup("userId", {
+                userId: null,
+            }));
+        }).toThrow(/userId not specified/);
+    });
+    it("returns valid sk for budget param", () => {
+        expect(generateSk(new IdGroup("budgetId", {
+            userId: "asdf",
+            budgetId: "mmm"
+        }))).toBe("user_asdf#budget_mmm");
+    });
+})
