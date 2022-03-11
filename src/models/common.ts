@@ -66,7 +66,7 @@ export function createAttrs(body: any, attrsDef: {[n: string]: AttrSpec}) {
         throw "Body parameter is " + body;
     }
 
-    const attrs = Object.fromEntries(Object.entries(attrsDef)
+    const attrsFromBody = Object.fromEntries(Object.entries(attrsDef)
         .map(([k, v]) => [k, body[k], v.type])
         .filter(n => n[1] !== undefined && n[1] !== null)
         .filter(n => typeof n[1] === n[2]));
@@ -76,15 +76,15 @@ export function createAttrs(body: any, attrsDef: {[n: string]: AttrSpec}) {
         .map(([k, v]) => k);
 
     const hasAllRequiredAttrs = requiredAttrs.reduce((pv, cv) => {
-        return pv && attrs.hasOwnProperty(cv);
+        return pv && attrsFromBody.hasOwnProperty(cv);
     }, true);
     
     if (hasAllRequiredAttrs) {
-        return attrs;
+        return attrsFromBody;
     } else {
         const msg = "Invalid body parameters. Required attributes missing/wrong data types. Required attrs: "
             + requiredAttrs;
-        console.error(msg);
+        // console.error(msg);
         throw msg;
     }
 }
@@ -119,9 +119,9 @@ export const putItem = async <T>(info: IdGroup, attrs: T): Promise<string | {PK:
     try {
         const data = await db.send(new PutCommand(params));
         console.log("Success - item added or updated", data);
-        return { PK: partitionKey, SK: sortKey }; // TO DO fix
+        return { PK: partitionKey, SK: sortKey };
     } catch (err) {
-        console.error("Error with put: " + err);
+        // console.error("Error with put: " + err);
         return "Error with put: " + err;
     }
 }

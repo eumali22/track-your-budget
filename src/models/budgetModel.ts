@@ -37,31 +37,6 @@ export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
     }
 }
 
-
-// export const putBudget = async (budgetInfo: BudgetParamGroup,
-//     attrs: BudgetAttrs) => {
-
-//     const partitionKey = reduceIds({
-//         userId: budgetInfo.userId,
-//         budgetId: "",
-//     });
-//     const sortKey = reduceIds(budgetInfo);
-//     const params = {
-//         TableName: constants.tableName,
-//         Item: createItem<BudgetAttrs>(partitionKey, sortKey, attrs),
-//     };
-
-//     try {
-//         const data = await db.send(new PutCommand(params));
-//         console.log("Success - item added or updated", data);
-//         console.log(`Budget id: ${budgetInfo.budgetId}`);
-//         return { budgetId: budgetInfo.budgetId };
-//     } catch (err) {
-//         console.log("Error with put: " + err);
-//         return "Error with put: " + err;
-//     }
-// }
-
 export const putBudget = async (budget: BudgetParamGroup, body: any) => {
     const attrs: BudgetAttrs = createAttrs(body, budgetAttrs);
     return putItem<BudgetAttrs>(new IdGroup("budgetId", budget), attrs);
