@@ -1,6 +1,6 @@
-import { PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { createItem, reduceIds } from "./common"
-import type { TransactAttrs, TransactParamGroup } from "../types/types";
+import { QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { createAttrs, putItem, reduceIds, transactionAttrs } from "./common"
+import { IdGroup, TransactAttrs, TransactParamGroup } from "../types/types";
 import { ddbDocClient as database} from "../libs/ddbDocClient";
 import { constants } from "../libs/common";
 
@@ -36,27 +36,7 @@ export const getTransactions = async (transInfo: TransactParamGroup) => {
     }
 };
 
-
-export const putTransaction = async (transInfo: TransactParamGroup,
-    attrs: TransactAttrs) => {
-    
-    const partitionKey = reduceIds({
-        userId: transInfo.userId,
-        budgetId: transInfo.budgetId,
-    });
-    const sortKey = reduceIds(transInfo);
-    const params = {
-        TableName: constants.tableName,
-        Item: createItem<TransactAttrs>(partitionKey, sortKey, attrs),
-    };
-
-    try {
-        const data = await database.send(new PutCommand(params));
-        console.log("Success - item added or updated", data);
-        console.log(`Transaction id: ${transInfo.transactionId}`);
-        return { transactionId: transInfo.transactionId };
-    } catch (err) {
-        console.log("Error with put: " + err);
-        return "Error with put: " + err;
-    }
+export const putTransaction = async (transaction: TransactParamGroup, body: any) => {
+    const attrs: TransactAttrs = createAttrs(body, transactionAttrs);
+    return putItem<TransactAttrs>(new IdGroup("transactionId", transaction), attrs);
 }

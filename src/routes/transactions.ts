@@ -33,7 +33,7 @@ export default function () {
         });
 
         if (typeof data === 'string') {
-            return res.json({msg: data, Count: 0});
+            res.json({msg: data, Count: 0});
         } else { // array of item objects
             res.json(data);
         }
@@ -50,7 +50,7 @@ export default function () {
             res.status(200).json(data);
 
         } catch (err) {
-            return res.status(500).json({ msg: "Error encountered: " + err, Count: 0 });
+            res.status(500).json({ msg: "Error encountered: " + err, Count: 0 });
         }
     });
 
@@ -69,13 +69,5 @@ function getIdFromBody(propName: string, prop: string, isRequired: boolean): str
     return prop;
 }
 
-// function getAttrFromBody<T>(attrName: string, attr: T, isRequired: boolean): T {
-//     if (attr === undefined || attr === null) {
-//         if (isRequired) {
-//             throw `No ${attrName} in request body!`;
-//         }
-//     }
-//     return attr;
-// }
 
 
