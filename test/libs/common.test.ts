@@ -7,7 +7,7 @@ import { IdGroup } from "../../src/types/types";
 /**
  * 
  */
-describe("test fn createAttrs()", () => {
+describe("fn createAttrs()", () => {
     it("accepts body arg with extra properties passed", () => {
         expect(createAttrs({
             is_start_bal: true,
@@ -72,7 +72,7 @@ describe("test fn createAttrs()", () => {
 /**
  * 
  */
-describe("test fn generatePk()", () => {
+describe("fn generatePk()", () => {
     it("returns valid pk for user and budget params", () => {
         expect(generatePk(new IdGroup("userId", {
             userId: "123"
@@ -133,7 +133,7 @@ describe("test fn generatePk()", () => {
 /**
  * 
  */
-describe("test fn generateSk()", () => {
+describe("fn generateSk()", () => {
     it("returns valid sk for user param", () => {
         expect(generateSk(new IdGroup("userId", {
             userId: "123"

@@ -57,17 +57,37 @@ export class IdGroup {
     }
 
     private validate() {
+        // check if idParams has extra ids / has missing ids
+        let hasExtraIds = false;
+        let hasMissingIds = false;
         switch (this.type) {
             case "userId":
-                return !(this.idParams.hasOwnProperty("budgetId") ||
+                hasExtraIds = this.idParams.hasOwnProperty("budgetId") ||
                     this.idParams.hasOwnProperty("accountId") ||
-                    this.idParams.hasOwnProperty("transactionId"));
+                    this.idParams.hasOwnProperty("transactionId");
+                hasMissingIds = !this.idParams.hasOwnProperty("userId");
+                break;
             case "budgetId": 
-                return !(this.idParams.hasOwnProperty("accountId") ||
-                    this.idParams.hasOwnProperty("transactionId"));
+                hasExtraIds = this.idParams.hasOwnProperty("accountId") ||
+                    this.idParams.hasOwnProperty("transactionId");
+                hasMissingIds = !this.idParams.hasOwnProperty("userId") ||
+                    !this.idParams.hasOwnProperty("budgetId");
+                break;
             case "accountId":
-                return !(this.idParams.hasOwnProperty("transactionId"));
+                hasExtraIds = this.idParams.hasOwnProperty("transactionId");
+                hasMissingIds = !this.idParams.hasOwnProperty("userId") ||
+                    !this.idParams.hasOwnProperty("budgetId") ||
+                    !this.idParams.hasOwnProperty("accountId");
+                break;
+            case "transactionId":
+                hasExtraIds = false;
+                hasMissingIds = !this.idParams.hasOwnProperty("userId") ||
+                    !this.idParams.hasOwnProperty("budgetId") ||
+                    !this.idParams.hasOwnProperty("accountId") ||
+                    !this.idParams.hasOwnProperty("transactionId");
+                break;
         }
-        return true;
+
+        return !hasExtraIds && !hasMissingIds;
     }
 }

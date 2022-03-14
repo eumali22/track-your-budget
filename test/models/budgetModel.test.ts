@@ -6,7 +6,7 @@ import { putItem, createAttrs } from "../../src/models/common";
  * fn getBudgets()
  * mocks send() to simulate database calls.
  */
-describe("test fn getBudgets()", () => {
+describe("fn getBudgets()", () => {
     it('returns correct single budget Item', async () => {
         const mockReturnData = {
             Items: [{
@@ -81,7 +81,7 @@ jest.mock("../../src/models/common", () => ({
     }),
 }));
 
-describe("test fn putBudget()", () => {
+describe("fn putBudget()", () => {
     it("creates an item given correct values", async () => {
         const data = await putBudget({
             userId: "1",

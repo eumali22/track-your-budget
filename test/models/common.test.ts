@@ -5,7 +5,7 @@ import { AccountAttrs, BudgetAttrs, TransactAttrs } from "../../src/types/types"
 /**
  * fn reduceIds() TO DO text maxReduction
  */
-describe("test reduceIds()", () => {
+describe("fn reduceIds()", () => {
     it('builds SK for querying one user->budget->account->transaction', () => {
         let ids = {
             "userId": "29554",
@@ -121,7 +121,7 @@ describe("test reduceIds()", () => {
 /**
  * fn filterId()
  */
-describe("test filterId()", () => {
+describe("fn filterId()", () => {
     // it("returns empty string for filterId(array)", () => {
     //     expect(filterId([1, 'a'])).toBe('');
     // });
@@ -162,7 +162,7 @@ describe("test filterId()", () => {
 /**
  * 
  */
-describe("test fn createItem()", () => {
+describe("fn createItem()", () => {
     it("creates a valid budget item from the params", () => {
         expect(createItem<BudgetAttrs>("afasf", "aaaa", {
             budget_name: "new Budget",
