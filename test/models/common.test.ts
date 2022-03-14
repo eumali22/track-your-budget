@@ -1,9 +1,9 @@
-import { reduceIds, filterId, createItem } from "../../src/models/common";
+import { reduceIds, filterId, createItem, createAttrs, budgetAttrs, transactionAttrs } from "../../src/models/common";
 import { AccountAttrs, BudgetAttrs, TransactAttrs } from "../../src/types/types";
 
 
 /**
- * fn reduceIds() TO DO text maxReduction
+ * fn reduceIds() TO DO test maxReduction
  */
 describe("fn reduceIds()", () => {
     it('builds SK for querying one user->budget->account->transaction', () => {
@@ -158,9 +158,8 @@ describe("fn filterId()", () => {
 
 });
 
-
 /**
- * 
+ * fn createItem() 
  */
 describe("fn createItem()", () => {
     it("creates a valid budget item from the params", () => {
@@ -197,4 +196,38 @@ describe("fn createItem()", () => {
         });
     });
 
+});
+
+/**
+ * fn createAttrs() TO DO test other attr group types
+ */
+describe("fn createAttrs()", () => {
+    it("returns a budget attribute group", () => {
+        const body = {
+            budget_name: "hey there"
+        };
+        expect(createAttrs(body, budgetAttrs)).toMatchObject({
+            budget_name: "hey there"
+        });
+    });
+    it("returns a transaction attribute group", () => {
+        const body = {
+            trans_date: "0123456789012",
+            is_start_bal: false,
+            is_outflow: true,
+            category: "cat",
+            another: 23,
+            memo: "",
+            value: 1200,
+            extra: "field"
+        };
+        expect(createAttrs(body, transactionAttrs)).toMatchObject({
+            "is_start_bal": false,
+            "is_outflow": true,
+            "category": "cat",
+            "trans_date": "0123456789012",
+            "memo": "",
+            "value": 1200
+        });
+    });
 });
