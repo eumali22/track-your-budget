@@ -2,11 +2,13 @@ import express from "express";
 import short from 'short-uuid';
 import { constants } from "../libs/common"
 import { putBudget } from "../models/budgetModel";
+import { authMiddleware } from "../services/authService";
 import { BudgetParamGroup } from "../types/types";
 
 export const router = express.Router();
 
 export default function () {
+    router.use(authMiddleware);
     router.post('/', async (req, res) => {
         try {
             const budgetParams = Object.fromEntries(

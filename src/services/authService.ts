@@ -1,3 +1,4 @@
+import { Request, Response } from 'express';
 import { CognitoJwtVerifier } from "aws-jwt-verify";
 
 const verifier = CognitoJwtVerifier.create({
@@ -24,5 +25,19 @@ export const checkIdToken = async (token: string) => {
     } catch {
         console.log("Token not valid!");
         return null;
+    }
+}
+
+export const authMiddleware = async (req: Request, resp: Response, next: () => void) => {
+    const { accessToken } = req.body;
+    
+    if (!accessToken) return resp.status(401).end();
+    const payload = await checkAccessToken(accessToken);
+    if (payload) {
+        console.log("middleware: valid token!");
+        next();
+    } else {
+        console.log("middleware: INvalid token!");
+        return resp.status(401).end();
     }
 }

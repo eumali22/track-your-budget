@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import transactions from './routes/transactions';
 import budgets from './routes/budgets';
-import checkToken from './routes/checkToken';
+import checkToken from './routes/tokens';
 
 export default function (): express.Express {
     const app = express();
