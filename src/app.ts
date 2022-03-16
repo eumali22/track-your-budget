@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import transactions from './routes/transactions';
 import budgets from './routes/budgets';
+import checkToken from './routes/checkToken';
 
 export default function (): express.Express {
     const app = express();
@@ -16,6 +17,7 @@ export default function (): express.Express {
     // Register routes
     app.use('/transactions', transactions());
     app.use('/budgets', budgets());
+    app.use('/checktoken', checkToken());
 
     app.set('query parser', 'simple');
 
