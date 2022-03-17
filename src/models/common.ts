@@ -1,8 +1,8 @@
 
 import { PutCommand } from "@aws-sdk/lib-dynamodb";
 import { BudgetAttrs, IdGroup, TransactAttrs, TybItem, XORParamGroups } from "../types/types";
-import { ddbDocClient as db } from "../libs/ddbDocClient";
-import { constants, idPrefixes } from "../libs/common"
+import { ddbDocClient as db } from "../lib/ddbDocClient";
+import { constants, idPrefixes } from "../lib/common"
 
 type AttrSpec = {
     type: string;

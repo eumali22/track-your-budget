@@ -1,5 +1,7 @@
 import { XOR } from "ts-xor";
 
+export type DbOperation = "query" | "insert" | "update";
+
 export type UserIdKeys = "userId";
 export type BudgetIdKeys = UserIdKeys | "budgetId";
 export type AccountIdKeys = BudgetIdKeys | "accountId";
