@@ -93,3 +93,5 @@ export class IdGroup {
         return !hasExtraIds && !hasMissingIds;
     }
 }
+
+export type ReqBody = XORParamGroups & { [key: string]: any };

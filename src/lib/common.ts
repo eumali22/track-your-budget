@@ -2,7 +2,12 @@ import { AllIdKeys, AllParamGroup } from "../types/types";
 
 const idKeys: AllIdKeys[] = ["userId", "budgetId", "accountId", "transactionId"];
 
-export const constants = {
+type Constants = {
+  idKeys: AllIdKeys[],
+  [key: string]: any
+}
+
+export const constants: Constants = {
     delimiter: "#",
     tableName: "TrackYourBudget",
     idKeys: idKeys,
@@ -10,9 +15,9 @@ export const constants = {
     budgetIdKeys: idKeys.slice(0, 2),
     accountIdKeys: idKeys.slice(0, 3),
     transactionIdKeys: idKeys.slice(0, 4)
-} as const;
+};
 
-export const idPrefixes: AllParamGroup = {
+export const idPrefixes: Record<AllIdKeys, string> = {
     userId: "user_",
     budgetId: "budget_",
     accountId: "acct_",
