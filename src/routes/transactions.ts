@@ -3,7 +3,7 @@ import express from 'express';
 import { createAttrs, transactionAttrs } from '../models/common';
 import { TransactParamGroup } from '../types/types';
 import short from 'short-uuid';
-import { constants } from '../libs/common';
+import { constants } from '../lib/common';
 
 // TO DO hardcoded for now
 const USER_ID = "1";

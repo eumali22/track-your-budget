@@ -1,16 +1,16 @@
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { reduceIds, putItem, createAttrs, budgetAttrs } from "./common";
 import { BudgetAttrs, BudgetParamGroup, IdGroup } from "../types/types";
-import { ddbDocClient as db } from "../libs/ddbDocClient";
-import { constants } from "../libs/common";
+import { ddbDocClient as db } from "../lib/ddbDocClient";
+import { constants } from "../lib/common";
 
-export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
+export const getBudgets = async (budgetParams: BudgetParamGroup) => {
     const partitionKey = reduceIds({
-        userId: budgetInfo.userId,
+        userId: budgetParams.userId,
         budgetId: null,
     });
-    const sortKey = reduceIds(budgetInfo);
-    const getAll: boolean = (budgetInfo.budgetId == null || budgetInfo.budgetId.trim() == "");
+    const sortKey = reduceIds(budgetParams);
+    const getAll: boolean = (budgetParams.budgetId == null || budgetParams.budgetId.trim() == "");
     let exprAttrVals;
     let keyCondExpr;
     if (getAll) {
@@ -29,7 +29,6 @@ export const getBudgets = async (budgetInfo: BudgetParamGroup) => {
 
     try {
         const data = await db.send(new QueryCommand(params));
-        // console.log("Fetch success!");
         return data.Items;
     } catch (err) {
         console.log("Error fetching: " + err);

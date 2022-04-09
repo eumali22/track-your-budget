@@ -1,5 +1,7 @@
 import { XOR } from "ts-xor";
 
+export type DbOperation = "query" | "insert" | "update";
+
 export type UserIdKeys = "userId";
 export type BudgetIdKeys = UserIdKeys | "budgetId";
 export type AccountIdKeys = BudgetIdKeys | "accountId";
@@ -91,3 +93,5 @@ export class IdGroup {
         return !hasExtraIds && !hasMissingIds;
     }
 }
+
+export type ReqBody = XORParamGroups & { [key: string]: any };
