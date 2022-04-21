@@ -1,9 +1,6 @@
 import { createAttrs, generatePk, generateSk, transactionAttrs } from "../../src/models/common";
 import { IdGroup } from "../../src/types/types";
 
-
-
-
 /**
  * 
  */

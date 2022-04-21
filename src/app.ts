@@ -4,6 +4,7 @@ import cors from 'cors';
 import transactions from './routes/transactions';
 import budgets from './routes/budgets';
 import checkToken from './routes/tokens';
+import auth from './routes/auth';
 
 export default function (): express.Express {
     const app = express();
@@ -18,6 +19,7 @@ export default function (): express.Express {
     app.use('/transactions', transactions());
     app.use('/budgets', budgets());
     app.use('/checktoken', checkToken());
+    app.use('/auth', auth());
 
     app.set('query parser', 'simple');
 

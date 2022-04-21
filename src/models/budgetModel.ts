@@ -1,6 +1,6 @@
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
 import { reduceIds, putItem, createAttrs, budgetAttrs } from "./common";
-import { BudgetAttrs, BudgetParamGroup, IdGroup } from "../types/types";
+import { BudgetAttrs, BudgetParamGroup, IdGroup, ReqBody, UserParamGroup, XORParamGroups } from "../types/types";
 import { ddbDocClient as db } from "../lib/ddbDocClient";
 import { constants } from "../lib/common";
 

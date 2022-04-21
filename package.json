@@ -14,10 +14,13 @@
   "license": "MIT",
   "dependencies": {
     "@aws-sdk/lib-dynamodb": "^3.53.0",
+    "amazon-cognito-identity-js": "^5.2.8",
     "aws-jwt-verify": "^2.1.3",
     "body-parser": "^1.19.2",
     "cors": "^2.8.5",
     "express": "^4.17.3",
+    "express-jwt": "^6.1.1",
+    "jwks-rsa": "^2.0.5",
     "short-uuid": "^4.2.0"
   },
   "devDependencies": {
