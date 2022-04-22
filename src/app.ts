@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import transactions from './routes/transactions';
 import budgets from './routes/budgets';
+import accounts from './routes/accounts';
 import checkToken from './routes/tokens';
 import auth from './routes/auth';
 
@@ -18,6 +19,7 @@ export default function (): express.Express {
     // Register routes
     app.use('/transactions', transactions());
     app.use('/budgets', budgets());
+    app.use('/accounts', accounts());
     app.use('/checktoken', checkToken());
     app.use('/auth', auth());
 

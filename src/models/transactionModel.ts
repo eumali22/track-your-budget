@@ -1,5 +1,5 @@
 import { QueryCommand } from "@aws-sdk/lib-dynamodb";
-import { createAttrs, putItem, reduceIds, transactionAttrs } from "./common"
+import { createAttrs, putItem, reduceIds, Attributes } from "./common"
 import { IdGroup, TransactAttrs, TransactParamGroup } from "../types/types";
 import { ddbDocClient as database} from "../lib/ddbDocClient";
 import { constants } from "../lib/common";
@@ -37,6 +37,6 @@ export const getTransactions = async (transInfo: TransactParamGroup) => {
 };
 
 export const putTransaction = async (transaction: TransactParamGroup, body: any) => {
-    const attrs: TransactAttrs = createAttrs(body, transactionAttrs);
+    const attrs: TransactAttrs = createAttrs(body, Attributes.transactionAttrs);
     return putItem<TransactAttrs>(new IdGroup("transactionId", transaction), attrs);
 }

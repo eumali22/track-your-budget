@@ -1,6 +1,6 @@
 import { getTransactions, putTransaction } from '../models/transactionModel';
 import express from 'express';
-import { createAttrs, transactionAttrs } from '../models/common';
+import { createAttrs, Attributes } from '../models/common';
 import { TransactParamGroup } from '../types/types';
 import short from 'short-uuid';
 import { constants } from '../lib/common';
@@ -46,7 +46,7 @@ export default function () {
                     return [key, getIdFromBody(key, req.body[key], true)];
                 }));
 
-            const data = await putTransaction(transactionParams as TransactParamGroup, createAttrs(req.body, transactionAttrs));
+            const data = await putTransaction(transactionParams as TransactParamGroup, createAttrs(req.body, Attributes.transactionAttrs));
             res.status(200).json(data);
 
         } catch (err) {

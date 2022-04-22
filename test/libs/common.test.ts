@@ -1,4 +1,4 @@
-import { createAttrs, generatePk, generateSk, transactionAttrs } from "../../src/models/common";
+import { createAttrs, generatePk, generateSk, Attributes } from "../../src/models/common";
 import { IdGroup } from "../../src/types/types";
 
 /**
@@ -15,7 +15,7 @@ describe("fn createAttrs()", () => {
             value: 100,
             extra: "hey",
             properties: "yeah"
-        }, transactionAttrs)).toMatchObject({
+        }, Attributes.transactionAttrs)).toMatchObject({
             value: 100,
             is_start_bal: true,
             is_outflow: true,
@@ -30,7 +30,7 @@ describe("fn createAttrs()", () => {
             trans_date: "43342",
             is_outflow: true,
             value: 1000,
-        }, transactionAttrs)).toMatchObject({
+        }, Attributes.transactionAttrs)).toMatchObject({
             value: 1000,
             is_start_bal: true,
             is_outflow: true,
@@ -42,7 +42,7 @@ describe("fn createAttrs()", () => {
             is_start_bal: true,
             trans_date: "43342",
             is_outflow: true,
-        }, transactionAttrs)).toThrow(/Invalid body parameters/);
+        }, Attributes.transactionAttrs)).toThrow(/Invalid body parameters/);
     });
     it("throws error if there are attrs with the wrong type", () => {
         expect(() => createAttrs({
@@ -50,19 +50,19 @@ describe("fn createAttrs()", () => {
             is_start_bal: 12,
             is_outflow: true,
             trans_date: false,
-        }, transactionAttrs)).toThrow(/Invalid body parameters/);
+        }, Attributes.transactionAttrs)).toThrow(/Invalid body parameters/);
     });
     it("throws error if body param is non-object", () => {
-        expect(() => createAttrs(false, transactionAttrs)).toThrow(/Body parameter is not an object/);
-        expect(() => createAttrs(0, transactionAttrs)).toThrow(/Body parameter is not an object/);
-        expect(() => createAttrs("", transactionAttrs)).toThrow(/Body parameter is not an object/);
-        expect(() => createAttrs(true, transactionAttrs)).toThrow(/Body parameter is not an object/);
-        expect(() => createAttrs(100, transactionAttrs)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(false, Attributes.transactionAttrs)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(0, Attributes.transactionAttrs)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs("", Attributes.transactionAttrs)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(true, Attributes.transactionAttrs)).toThrow(/Body parameter is not an object/);
+        expect(() => createAttrs(100, Attributes.transactionAttrs)).toThrow(/Body parameter is not an object/);
     });
     it("throws error if body param is undefined/null/etc", () => {
-        expect(() => createAttrs(null, transactionAttrs)).toThrow(/Body parameter is/);
-        expect(() => createAttrs(undefined, transactionAttrs)).toThrow(/Body parameter is/);
-        expect(() => createAttrs(NaN, transactionAttrs)).toThrow(/Body parameter is/);
+        expect(() => createAttrs(null, Attributes.transactionAttrs)).toThrow(/Body parameter is/);
+        expect(() => createAttrs(undefined, Attributes.transactionAttrs)).toThrow(/Body parameter is/);
+        expect(() => createAttrs(NaN, Attributes.transactionAttrs)).toThrow(/Body parameter is/);
     });
 })
 

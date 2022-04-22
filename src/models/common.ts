@@ -1,6 +1,5 @@
-
-import { PutCommand } from "@aws-sdk/lib-dynamodb";
-import { BudgetAttrs, IdGroup, TransactAttrs, TybItem, XORParamGroups } from "../types/types";
+import { PutCommand, QueryCommand, QueryCommandInput } from "@aws-sdk/lib-dynamodb";
+import { AccountAttrs, BudgetAttrs, IdGroup, TransactAttrs, TybItem, XORParamGroups } from "../types/types";
 import { ddbDocClient as db } from "../lib/ddbDocClient";
 import { constants, idPrefixes } from "../lib/common"
 
@@ -9,26 +8,31 @@ type AttrSpec = {
   required: boolean;
 }
 
-export const budgetAttrs: Record<keyof BudgetAttrs, AttrSpec> = {
-  "budget_name": { type: "string", required: true },
-} as const;
+export namespace Attributes {
+  export const budgetAttrs: Record<keyof BudgetAttrs, AttrSpec> = {
+    "budget_name": { type: "string", required: true },
+  };
 
-export const transactionAttrs: Record<keyof TransactAttrs, AttrSpec> = {
-  "is_start_bal": { type: "boolean", required: true },
-  "is_outflow": { type: "boolean", required: true },
-  "category": { type: "string", required: false },
-  "trans_date": { type: "string", required: true },
-  "memo": { type: "string", required: false },
-  "value": { type: "number", required: true }
-} as const;
+  export const accountAttrs: Record<keyof AccountAttrs, AttrSpec> = {
+    "account_name": { type: "string", required: true },
+  };
 
+  export const transactionAttrs: Record<keyof TransactAttrs, AttrSpec> = {
+    "is_start_bal": { type: "boolean", required: true },
+    "is_outflow": { type: "boolean", required: true },
+    "category": { type: "string", required: false },
+    "trans_date": { type: "string", required: true },
+    "memo": { type: "string", required: false },
+    "value": { type: "number", required: true }
+  };
+}
 
 export function reduceIds(ids: XORParamGroups, maxReduction?: number): string {
   // if (typeof ids !== 'object') return "";
 
   return constants.idKeys.reduce((prevVal, currVal, index) => {
     // return prevVal if current id not part of query object
-    // return preVal if maxReduction reached
+    // return prevVal if maxReduction reached
     if (!Object.keys(ids).includes(currVal)) {
       return prevVal;
     }
@@ -108,7 +112,29 @@ export const generateSk = (idGroup: IdGroup): string => {
   return reduceIds(idGroup.idParams);
 }
 
+export const getProjectionExpr = (idGroup: IdGroup, ql: QueryLevel): string => {
+  switch (idGroup.type) {
+    case 'budgetId':
+      return "SK, budget_name";
+    case 'accountId':
+      return ql === "all" ? "" : "SK, account_name";
+    default:
+      return "";
+  }
+}
+
+// export const getFilterExpr = (idGroup: IdGroup, q: QueryLevel): string => {
+//   switch (idGroup.type) {
+//     case 'budgetId':
+//       return "SK, budget_name";
+    
+//     default:
+//       return "";
+//   }
+// }
+
 export type KeySet = { PK: string, SK: string };
+export type QueryLevel = "all" | "first";
 
 export const putItem = async <T>(info: IdGroup, attrs: T): Promise<KeySet> => {
   const partitionKey = generatePk(info);
@@ -123,6 +149,53 @@ export const putItem = async <T>(info: IdGroup, attrs: T): Promise<KeySet> => {
     console.log("Success - item added or updated", data);
     return { PK: partitionKey, SK: sortKey };
   } catch (err) {
-    return Promise.reject(new Error("Error with put: " + err));
+    throw new Error("Error with put: " + err);
   }
+}
+
+export const getItems = async (info: IdGroup, ql: QueryLevel): Promise<any> => {
+  const partitionKey = generatePk(info);
+  const sortKey = generateSk(info);
+  const mainId = info.idParams[info.type];
+  const getAll = ((mainId === null || mainId === undefined) || mainId.trim() === "");
+  
+  let exprAttrVals;
+  let keyCondExpr;
+  
+  if (getAll) {
+    exprAttrVals = { ":pk": partitionKey };
+    keyCondExpr = "PK = :pk";
+  } else {
+    exprAttrVals = { ":pk": partitionKey, ":sk": sortKey };
+    keyCondExpr = "PK = :pk AND begins_with(SK, :sk)"
+  }
+
+  const params = buildQuery({
+    TableName: constants.tableName,
+    ExpressionAttributeValues: exprAttrVals,
+    KeyConditionExpression: keyCondExpr,
+  }, info, ql);
+
+  try {
+    const data = await db.send(new QueryCommand(params));
+    return data.Items;
+  } catch (err) {
+    console.log(err);
+    throw new Error("Error fetching: " + err);
+  }
+}
+
+const buildQuery = (params: QueryCommandInput, info: IdGroup, ql: QueryLevel): QueryCommandInput => {
+  const projectionExpr = getProjectionExpr(info, ql);
+  // const filterExpr = getFilterExpr(info, "first");
+
+  let returnParams = params;
+  if (projectionExpr) {
+    returnParams = { ...returnParams, ProjectionExpression: projectionExpr };
+  }
+  // if (filterExpr) {
+  //   returnParams = { ...returnParams, FilterExpression: filterExpr };
+  // }
+
+  return returnParams;
 }
