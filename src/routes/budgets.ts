@@ -1,8 +1,7 @@
 import express from "express";
 import { getBudgets, putBudget } from "../models/budgetModel";
 import authorizeAccessToken, { getCurrentUserId } from "../services/auth";
-import { authMiddleware, authMware } from "../services/authService";
-import { BudgetParamGroup, ReqBody } from "../types/types";
+import { BudgetParamGroup } from "../types/types";
 import { extractIds, handlePost } from "./common";
 
 export const router = express.Router();
@@ -11,10 +10,12 @@ export default function () {
   // expected req is defined since we use body-parser middleware
   router.post('/', 
     // authorizeAccessToken,
-    async (req, res) => handlePost("budgetId", req.body, res, putBudget));
+    async (req, res) => handlePost(getCurrentUserId(), "budgetId", req.body, res, putBudget)
+  );
 
   router.get('/:budgetId?',
-    async (req, res) => handleGet(getCurrentUserId(), req.params, res));
+    async (req, res) => handleGet(getCurrentUserId(), req.params, res)
+  );
 
   return router;
 }

@@ -40,11 +40,14 @@ function computeId(mainId: AllIdKeys, propName: string, prop: string | null | un
   }
 }
 
-export async function handlePost<T extends XORParamGroups>(mainId: AllIdKeys, body: ReqBody, res: any, process: (x: T, y: ReqBody) => Promise<KeySet>) {
+export async function handlePost<T extends XORParamGroups>(
+  uid: string, mainId: AllIdKeys, body: ReqBody, res: any, process: (x: T, y: ReqBody) => Promise<KeySet>) {
+
   try {
     const operation = body[mainId] ? "update" : "insert";
-    const idParams = extractIds<T>(mainId, body, operation);
-    const data = await process(idParams, body);
+    const bodyWithId = {...body, userId: uid};
+    const idParams = extractIds<T>(mainId, bodyWithId, operation);
+    const data = await process(idParams, bodyWithId);
     res.status(200).json(data);
   } catch (err) {
     if (err instanceof Error) {
@@ -53,6 +56,21 @@ export async function handlePost<T extends XORParamGroups>(mainId: AllIdKeys, bo
         return res.status(400).json({ msg: err.message });  
       }
       return res.status(500).json({ msg: err.message });
+    }
+    return res.status(500).json({ msg: err });
+  }
+}
+
+export async function handleGet<T extends XORParamGroups>(
+  uid: string, mainId: AllIdKeys, params: any, res: any, process: (x: T) => Promise<any>) {
+
+  try {
+    const idParams = extractIds<T>(mainId, { userId: uid, ...params }, "query");
+    const data = await process(idParams);
+    res.status(200).json(data);
+  } catch (err) {
+    if (typeof err === 'string' && err.startsWith("Invalid body parameters")) {
+      return res.status(400).json({ msg: err });
     }
     return res.status(500).json({ msg: err });
   }
