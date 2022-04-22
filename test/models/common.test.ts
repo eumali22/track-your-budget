@@ -1,4 +1,4 @@
-import { reduceIds, filterId, createItem, createAttrs, budgetAttrs, transactionAttrs } from "../../src/models/common";
+import { reduceIds, filterId, createItem, createAttrs, Attributes } from "../../src/models/common";
 import { AccountAttrs, BudgetAttrs, TransactAttrs } from "../../src/types/types";
 
 
@@ -206,7 +206,7 @@ describe("fn createAttrs()", () => {
         const body = {
             budget_name: "hey there"
         };
-        expect(createAttrs(body, budgetAttrs)).toMatchObject({
+        expect(createAttrs(body, Attributes.budgetAttrs)).toMatchObject({
             budget_name: "hey there"
         });
     });
@@ -221,7 +221,7 @@ describe("fn createAttrs()", () => {
             value: 1200,
             extra: "field"
         };
-        expect(createAttrs(body, transactionAttrs)).toMatchObject({
+        expect(createAttrs(body, Attributes.transactionAttrs)).toMatchObject({
             "is_start_bal": false,
             "is_outflow": true,
             "category": "cat",

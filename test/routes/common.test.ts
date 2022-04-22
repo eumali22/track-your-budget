@@ -1,4 +1,3 @@
-import { constants } from '../../src/lib/common';
 import { extractIds } from '../../src/routes/common';
 
 describe('fn extractIds()', () => {
@@ -72,13 +71,36 @@ describe('fn extractIds()', () => {
       accountId: "6789"
     });
   });
-  it('returns random id when inserting', () => {
+  it('returns blank id for main id (operation=query)', () => {
+    expect(extractIds("transactionId", {
+      userId: "asdf",
+      budgetId: "12311n",
+      accountId: "af",
+      transactionId: null
+    }, "query")).toMatchObject({
+      userId: "asdf",
+      budgetId: "12311n",
+      accountId: "af",
+      transactionId: ""
+    });
+    expect(extractIds("transactionId", {
+      userId: "asdf",
+      budgetId: "12311n",
+      accountId: "af"
+    }, "query")).toMatchObject({
+      userId: "asdf",
+      budgetId: "12311n",
+      accountId: "af",
+      transactionId: ""
+    });
+  });
+  it('returns random id (operation=insert)', () => {
     const ids = extractIds("accountId", {
       userId: "asdf",
       budgetId: "12311n",
       accountId: "",
-    }, "query");
-    
+    }, "insert");
+
     expect(ids).toBeDefined();
     expect(ids.accountId).toBeTruthy();
 
@@ -89,16 +111,41 @@ describe('fn extractIds()', () => {
     }
     expect(ids).toMatchObject(expectedData);
   });
+  it('throws error if source does not have required id (operation=query)', () => {
+    expect(() => extractIds("accountId", {
+      userId: "asdf",
+      accountId: "12311n",
+    }, "query")).toThrow(/Missing id in source/);
+    expect(() => extractIds("accountId", {
+      userId: "asdf",
+      budgetId: "",
+      accountId: "12311n",
+    }, "query")).toThrow(/Missing id in source/);
+    expect(() => extractIds("accountId", {
+      userId: "asdf",
+      budgetId: null,
+      accountId: "12311n",
+    }, "query")).toThrow(/Missing id in source/);
+  });
+  it('throws error if source does not have required id (operation=update)', () => {
+    expect(() => extractIds("accountId", {
+      userId: "asdf",
+      budgetId: "12311n",
+    }, "update")).toThrow(/Missing id in source/);
+    expect(() => extractIds("accountId", {
+      userId: "asdf",
+      budgetId: "12311n",
+      accountId: "",
+    }, "update")).toThrow(/Missing id in source/);
+    expect(() => extractIds("accountId", {
+      userId: "asdf",
+      budgetId: "12311n",
+      accountId: null
+    }, "update")).toThrow(/Missing id in source/);
+  });
+  it('throws error if source is empty object', () => {
+    expect(() => extractIds("userId", {}, "update")).toThrow(/Missing id in source/);
+    expect(() => extractIds("accountId", {}, "insert")).toThrow(/Missing id in source/);
+    expect(() => extractIds("transactionId", {}, "query")).toThrow(/Missing id in source/);
+  });
 });
-
-// describe('fn computeId()', () => {
-//   it('returns id correctly', () => {
-//     expect(computeId("userId", "userId", "adfasd", "query")).toBe("adfasd");
-//   });
-//   it('returns random id for insert operation', () => {
-//     expect(computeId("transactionId", "transactionId", "", "insert")).toBeTruthy();
-//   });
-//   it('returns random id for insert operation', () => {
-//     expect(computeId("budgetId", "transactionId", "", "insert")).toBeTruthy();
-//   });
-// })
