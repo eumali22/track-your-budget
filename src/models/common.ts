@@ -62,6 +62,61 @@ export function createItem<T>(pk: string, sk: string, attrs: T): TybItem {
   return item;
 }
 
+/**
+ * tests if s contains only digits or is empty. no trim
+ * @param s string. empty string accepted
+ * @returns empty string returns true
+ */
+export const containsDigitsOnly = (s: string) => [...s].every(c => '0123456789'.includes(c));
+
+/**
+ * Accepted number format is XXX<separator>XXX. Strict checking -- no trim calls inside function.
+ * @param str the string to check.
+ * @param separator defaults to '.'.
+ * @returns true if format of str is XXX<separator>XXX.
+ */
+export function isValidNumberFormat(str: string, separator:string = '.'): boolean {
+  const split = str.split(separator);
+  return split.every(containsDigitsOnly);
+}
+
+export function convertToType(data: [string, string, 'boolean' | 'number' | 'string'][]) {
+  return data.map(([name, value, type]) => {
+    switch (type) {
+      case 'boolean':
+        if (value.toLowerCase().trim() === 'true') return [name, true];
+        if (value.toLowerCase().trim() === 'false') return [name, false];
+        throw new Error('Unparsable boolean');
+      case 'number':
+        if (isValidNumberFormat(value)) return [name, parseFloat(value)];
+        throw new Error("Unparsable number");
+      default:
+        return [name, value];
+    }
+  });
+}
+
+export function getAttributesFromBody(body: any, attrsDef: { [n: string]: AttrSpec }) {
+  return Object.fromEntries(Object.entries(attrsDef)
+    .map(([k, v]) => [k, body[k], v.type])
+    .filter(n => n[1] !== undefined && n[1] !== null)
+    .map(([name, value, type]) => {
+      if (typeof value === type) return [name, value];
+      if (typeof value !== 'string') throw new Error(`Invalid body parameters: string expected, got ${typeof value}`);
+      switch (type) {
+        case 'boolean':
+          if (value.toLowerCase().trim() === 'true') return [name, true];
+          if (value.toLowerCase().trim() === 'false') return [name, false];
+          throw new Error('Unparsable boolean');
+        case 'number':
+          if (isValidNumberFormat(value)) return [name, parseFloat(value)];
+          throw new Error("Unparsable number");
+        default:
+          return [name, value];
+      }
+    }));
+}
+
 export function createAttrs(body: any, attrsDef: { [n: string]: AttrSpec }) {
   if (typeof body !== 'object') {
     throw new Error("Body parameter is not an object.");
@@ -70,10 +125,11 @@ export function createAttrs(body: any, attrsDef: { [n: string]: AttrSpec }) {
     throw new Error("Body parameter is " + body);
   }
 
-  const attrsFromBody = Object.fromEntries(Object.entries(attrsDef)
-    .map(([k, v]) => [k, body[k], v.type])
-    .filter(n => n[1] !== undefined && n[1] !== null)
-    .filter(n => typeof n[1] === n[2]));
+  console.log(`body:\n ${body}`);
+  console.log(`attrsDef:\n ${attrsDef}`);
+
+  const attrsFromBody = getAttributesFromBody(body, attrsDef);
+  console.log(`attrsFromBody:\n ${attrsFromBody}`);
 
   const requiredAttrs = Object.entries(attrsDef)
     .filter(([k, v]) => v.required)
@@ -112,26 +168,50 @@ export const generateSk = (idGroup: IdGroup): string => {
   return reduceIds(idGroup.idParams);
 }
 
+export const getExprAttrNames = (idGroup: IdGroup) => {
+  switch (idGroup.type) {
+    case 'transactionId':
+      return {
+        "#value": "value",
+      };
+    default:
+      return null;
+  }
+}
+
 export const getProjectionExpr = (idGroup: IdGroup, ql: QueryLevel): string => {
   switch (idGroup.type) {
     case 'budgetId':
       return "SK, budget_name";
     case 'accountId':
       return ql === "all" ? "" : "SK, account_name";
+    case 'transactionId':
+      return "SK, trans_date, #value, is_outflow";
     default:
       return "";
   }
 }
 
-// export const getFilterExpr = (idGroup: IdGroup, q: QueryLevel): string => {
-//   switch (idGroup.type) {
-//     case 'budgetId':
-//       return "SK, budget_name";
-    
-//     default:
-//       return "";
-//   }
-// }
+export const getExpressionAttributeValues = (idGroup: IdGroup, pk: string, sk: string) => {
+  switch (idGroup.type) {
+    case 'budgetId':
+      const idVal = idGroup.idParams[idGroup.type];
+      return idVal ? { ":pk": pk, ":sk": sk } : { ":pk": pk };
+    default:
+      return { ":pk": pk, ":sk": sk };
+  }
+}
+
+export const getKeyConditionExpression = (idGroup: IdGroup) => {
+  switch (idGroup.type) {
+    case 'budgetId':
+      const idVal = idGroup.idParams[idGroup.type];
+      return idVal ? "PK = :pk AND begins_with(SK, :sk)" : "PK = :pk";
+    default:
+      return "PK = :pk AND begins_with(SK, :sk)";
+  }
+}
+
 
 export type KeySet = { PK: string, SK: string };
 export type QueryLevel = "all" | "first";
@@ -156,20 +236,19 @@ export const putItem = async <T>(info: IdGroup, attrs: T): Promise<KeySet> => {
 export const getItems = async (info: IdGroup, ql: QueryLevel): Promise<any> => {
   const partitionKey = generatePk(info);
   const sortKey = generateSk(info);
-  const mainId = info.idParams[info.type];
-  const getAll = ((mainId === null || mainId === undefined) || mainId.trim() === "");
-  
-  let exprAttrVals;
-  let keyCondExpr;
-  
-  if (getAll) {
-    exprAttrVals = { ":pk": partitionKey };
-    keyCondExpr = "PK = :pk";
-  } else {
-    exprAttrVals = { ":pk": partitionKey, ":sk": sortKey };
-    keyCondExpr = "PK = :pk AND begins_with(SK, :sk)"
-  }
+  const mainIdVal = info.idParams[info.type];
 
+  // const getOneItemOnly = (mainIdVal !== null && mainIdVal !== undefined && mainIdVal.trim() !== "");
+  // console.log(`mainIdVal: "${mainIdVal}"`);
+  // console.log(`get one item only? ${getOneItemOnly}`);
+  // console.log(`PK ${partitionKey}`);
+  // console.log(`SK ${sortKey}`);
+  
+  let exprAttrVals = getExpressionAttributeValues(info, partitionKey, sortKey);
+  let keyCondExpr = getKeyConditionExpression(info);
+  
+  console.log(`Key Condition Expression: ${keyCondExpr}`);
+  
   const params = buildQuery({
     TableName: constants.tableName,
     ExpressionAttributeValues: exprAttrVals,
@@ -186,16 +265,16 @@ export const getItems = async (info: IdGroup, ql: QueryLevel): Promise<any> => {
 }
 
 const buildQuery = (params: QueryCommandInput, info: IdGroup, ql: QueryLevel): QueryCommandInput => {
+  const exprAttrNames = getExprAttrNames(info);
   const projectionExpr = getProjectionExpr(info, ql);
-  // const filterExpr = getFilterExpr(info, "first");
 
   let returnParams = params;
   if (projectionExpr) {
     returnParams = { ...returnParams, ProjectionExpression: projectionExpr };
   }
-  // if (filterExpr) {
-  //   returnParams = { ...returnParams, FilterExpression: filterExpr };
-  // }
+  if (exprAttrNames) {
+    returnParams = { ...returnParams, ExpressionAttributeNames: exprAttrNames };
+  }
 
   return returnParams;
 }
