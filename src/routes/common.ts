@@ -4,7 +4,7 @@ import { KeySet } from '../models/common';
 import { AllIdKeys, DbOperation, ReqBody, XORParamGroups } from '../types/types';
 
 /**
- * Called by routers to extract id from request body.
+ * Called by routers to extract id values from request body.
  * @param mainId must be one of: "userId", "budgetId", "accountId", "transactionId"
  * @param source request body passed here and type is `any`. function will validate this
  * @param operation must be one of: "query", "insert", "update"
