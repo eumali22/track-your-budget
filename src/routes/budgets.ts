@@ -11,7 +11,7 @@ export default function () {
   );
 
   router.post('/',
-    // authorizeAccessToken,
+    authorizeAccessToken,
     async (req, res) => handlePost(getCurrentUserId(), "budgetId", req.body, res, putBudget)
   );
 
