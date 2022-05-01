@@ -7,6 +7,7 @@ export const router = express.Router();
 
 export default function () {
   router.get('/:budgetId?',
+    authorizeAccessToken,
     async (req, res) => handleGet(getCurrentUserId(), "budgetId", req.params, res, getBudgets)
   );
 
