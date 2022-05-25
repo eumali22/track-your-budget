@@ -7,10 +7,10 @@ export const router = express.Router();
 
 export default function () {
   router.get('/:budgetId/:accountId/:transactionId?',
-    async (req, res) => handleGet(getCurrentUserId(), "transactionId", req.params, res, getTransactions)
+    async (req, res) => handleGet(getCurrentUserId(req), "transactionId", req.params, res, getTransactions)
   );
   router.post('/', 
-    async (req, res) => handlePost(getCurrentUserId(), "transactionId", req.body, res, putTransaction)
+    async (req, res) => handlePost(getCurrentUserId(req), "transactionId", req.body, res, putTransaction)
   );
 
   // router.post('/', async (req, res) => {
