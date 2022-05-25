@@ -7,12 +7,13 @@ export const router = express.Router();
 
 export default function () {
   router.get('/:budgetId?',
-    async (req, res) => handleGet(getCurrentUserId(), "budgetId", req.params, res, getBudgets)
+    authorizeAccessToken,
+    async (req, res) => handleGet(getCurrentUserId(req), "budgetId", req.params, res, getBudgets)
   );
 
   router.post('/',
-    // authorizeAccessToken,
-    async (req, res) => handlePost(getCurrentUserId(), "budgetId", req.body, res, putBudget)
+    authorizeAccessToken,
+    async (req, res) => handlePost(getCurrentUserId(req), "budgetId", req.body, res, putBudget)
   );
 
   return router;

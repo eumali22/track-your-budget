@@ -7,14 +7,14 @@ export const router = express.Router();
 
 export default function () {
   router.get('/first/:budgetId/:accountId?',
-    async (req, res) => handleGet(getCurrentUserId(), "accountId", req.params, res, getAccountsOnly)
+    async (req, res) => handleGet(getCurrentUserId(req), "accountId", req.params, res, getAccountsOnly)
   );
   router.get('/all/:budgetId/:accountId?',
-    async (req, res) => handleGet(getCurrentUserId(), "accountId", req.params, res, getAccountsSet)
+    async (req, res) => handleGet(getCurrentUserId(req), "accountId", req.params, res, getAccountsSet)
   );
   router.post('/',
     // authorizeAccessToken,
-    async (req, res) => handlePost(getCurrentUserId(), "accountId", req.body, res, putAccount)
+    async (req, res) => handlePost(getCurrentUserId(req), "accountId", req.body, res, putAccount)
   );
 
   return router;
