@@ -247,7 +247,7 @@ export const getItems = async (info: IdGroup, ql: QueryLevel): Promise<any> => {
   let exprAttrVals = getExpressionAttributeValues(info, partitionKey, sortKey);
   let keyCondExpr = getKeyConditionExpression(info);
   
-  console.log(`Key Condition Expression: ${keyCondExpr}`);
+  // console.log(`Key Condition Expression: ${keyCondExpr}`);
   
   const params = buildQuery({
     TableName: constants.tableName,
